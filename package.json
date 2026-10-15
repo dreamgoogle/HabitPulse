@@ -6,6 +6,8 @@
   "description": "HabitPulse — daily habit tracker with Google sign-in, per-user cloud sync and CSV/Sheets export.",
   "scripts": {
     "dev": "vite",
+    "dev:emulators": "firebase emulators:exec --only auth,firestore,functions --project habitpulse-local --ui \"vite\"",
+    "emulators:only": "firebase emulators:start --only auth,firestore,functions --project habitpulse-local",
     "build": "vite build",
     "preview": "vite preview",
     "emulators": "firebase emulators:start",
