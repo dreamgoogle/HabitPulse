@@ -1,0 +1,104 @@
+rules_version = '2';
+
+/**
+ * HabitPulse — Firestore Security Rules
+ *
+ * Purane model mein har account `artifacts/{appId}/public/data/habitpulse_accounts/{key}`
+ * par tha, jahan key = 'google_' + email.replace(/[^a-z0-9]/g,'_'). Yaani kisi ka
+ * email jaante ho to uska doc path jaante ho — aur wo `public/` ke neeche tha.
+ * Koi bhi anonymous session kisi ka bhi data padh/likh sakta tha.
+ *
+ * Ab har cheez /users/{uid} ke neeche hai aur request.auth.uid se bandhi hai.
+ * Niche wala catch-all `allow read, write: if false` default-deny deta hai —
+ * yahi asli isolation hai, client code nahi.
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    // Month 01-12 aur day 01-31 bhi check hota hai. Pehle sirf [0-9]{2} tha,
+    // jisse `2026-13-45` jaisi impossible dates bhi log ban jati thi.
+    // (Feb 30 jaisa case nahi pakda jata — wahan se faayda kam hai.)
+    function isValidDateKey(key) {
+      return key.matches('^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$');
+    }
+
+    // ---------------------------------------------------------------
+    // User profile
+    // ---------------------------------------------------------------
+    match /users/{uid} {
+      allow get, list: if isOwner(uid) || isAdmin();
+
+      // Email token se match karna chahiye — koi dusre ka profile claim na kar sake
+      allow create: if isOwner(uid)
+                    && request.resource.data.uid == uid
+                    && request.resource.data.email == request.auth.token.email;
+
+      // User khud ko admin nahi bana sakta, aur email token se hi bandha rehta hai.
+      // (Email check pehle sirf create par tha — tab user baad mein apna email
+      //  badal kar kisi aur ka likh sakta tha, jisse admin panel galat data dikhata.
+      //  Legit updates par asar nahi: client hamesha user.email bhejta hai, aur
+      //  Google email badalne par token mein bhi naya hi email aata hai.)
+      allow update: if isOwner(uid)
+                    && request.resource.data.uid == resource.data.uid
+                    && request.resource.data.email == request.auth.token.email
+                    && !request.resource.data.diff(resource.data)
+                          .affectedKeys().hasAny(['role', 'uid']);
+
+      // Deletion sirf Cloud Function (Admin SDK) se — wo rules bypass karta hai
+      allow delete: if false;
+
+      // -------------------------------------------------------------
+      // Habits
+      // -------------------------------------------------------------
+      match /habits/{habitId} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow create, update: if isOwner(uid)
+                              && request.resource.data.name is string
+                              && request.resource.data.name.size() > 0
+                              && request.resource.data.name.size() <= 36
+                              && request.resource.data.weeklyGoal is number
+                              && request.resource.data.weeklyGoal >= 1
+                              && request.resource.data.weeklyGoal <= 7;
+        allow delete: if isOwner(uid);
+      }
+
+      // -------------------------------------------------------------
+      // Daily logs — ek din = ek doc
+      // -------------------------------------------------------------
+      match /logs/{dateKey} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow write: if isOwner(uid)
+                     && isValidDateKey(dateKey)
+                     && request.resource.data.completed is map
+                     && request.resource.data.completed.keys().size() <= 100;
+      }
+    }
+
+    // ---------------------------------------------------------------
+    // Aggregated admin stats — sirf Cloud Function likhta hai
+    // ---------------------------------------------------------------
+    match /admin_stats/{docId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------------
+    // Default deny — jo upar explicitly allow nahi hai, wo band hai
+    // ---------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

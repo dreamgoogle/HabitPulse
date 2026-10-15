@@ -1,0 +1,32 @@
+# ---- Secrets: ye kabhi commit nahi hone chahiye ----
+serviceAccountKey.json
+*-firebase-adminsdk-*.json
+.env
+.env.local
+.env.*.local
+*.keystore
+*.jks
+android/keystore.properties
+
+# ---- Dependencies & builds ----
+node_modules/
+dist/
+admin/dist/
+functions/node_modules/
+android/
+*.aab
+*.apk
+
+# ---- Firebase ----
+.firebase/
+.firebaserc
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# ---- Editors / OS ----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
