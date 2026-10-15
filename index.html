@@ -8,7 +8,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="HabitPulse">
-    <link id="pwa-manifest-link" rel="manifest" href="">
+    <!-- Static manifest link in raw HTML so PWABuilder.com server-side scanner detects it immediately -->
+    <link id="pwa-manifest-link" rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <title>HabitPulse - Daily Goal, Streak & Sheets Tracker</title>
     <!-- Official Google Identity Services (GIS) SDK for Real Chrome / Android Account Chooser -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -1766,37 +1768,51 @@
                 <div class="card">
                     <div class="card-header">
                         <div>
-                            <div class="card-title">📲 Free APK & Family Sharing Guide</div>
-                            <div class="card-subtitle">Share with friends & family for $0 (No Play Store fee)</div>
+                            <div class="card-title">📦 PWABuilder APK Kit (Fix "No Manifest")</div>
+                            <div class="card-subtitle">Required files for PWABuilder.com Android APK</div>
                         </div>
-                        <span class="badge-pill">100% Free</span>
+                        <span class="badge-pill">PWABuilder Ready</span>
                     </div>
 
-                    <div style="font-size:11px; font-weight:800; color:var(--brand-light); text-transform:uppercase; margin-bottom:8px;">
-                        Option A: Create a Direct-Install Android APK (Share via WhatsApp / Drive)
+                    <div style="font-size:11px; color:var(--text-sub); line-height:1.45; margin-bottom:12px;">
+                        <b>Why did PWABuilder say "We did not find any manifest file"?</b><br>
+                        PWABuilder's server scans the raw HTML before JavaScript runs, so it requires a real <b><code>manifest.json</code></b> file, <b><code>sw.js</code></b>, and PNG icons in the same folder as <code>index.html</code> when you upload to Netlify Drop / GitHub Pages.
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                        <button type="button" onclick="openPwaHelperModal('manifest')" class="btn-primary" style="margin-bottom:0; padding:10px; font-size:11px;">
+                            📄 1. Get manifest.json
+                        </button>
+                        <button type="button" onclick="openPwaHelperModal('sw')" class="btn-secondary" style="padding:10px; font-size:11px;">
+                            ⚙️ 2. Get sw.js (Offline)
+                        </button>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
+                        <button type="button" onclick="downloadGeneratedIcon(192)" class="period-btn" style="padding:9px; font-size:11px; color:var(--text-main);">
+                            🖼️ 3. Download icon-192.png
+                        </button>
+                        <button type="button" onclick="downloadGeneratedIcon(512)" class="period-btn" style="padding:9px; font-size:11px; color:var(--text-main);">
+                            🖼️ 4. Download icon-512.png
+                        </button>
+                    </div>
+
+                    <div style="font-size:11px; font-weight:800; color:var(--brand-light); text-transform:uppercase; margin-bottom:8px; padding-top:10px; border-top:1px solid var(--border-color);">
+                        How to Deploy Folder &amp; Generate Free APK
                     </div>
                     <div class="play-step">
                         <span class="step-badge">1</span>
-                        <div><b>Host `index.html` on a Free HTTPS Link:</b> Drag and drop this file onto <b>Netlify Drop</b> (<code>app.netlify.com/drop</code>), <b>GitHub Pages</b>, or <b>Vercel</b> to get a free URL like <code>https://habitpulse-family.netlify.app</code>.</div>
+                        <div>Create a folder on your computer containing <b>5 files</b>: <code>index.html</code>, <code>manifest.json</code>, <code>sw.js</code>, <code>icon-192.png</code>, and <code>icon-512.png</code> (use buttons 1–4 above).</div>
                     </div>
                     <div class="play-step">
                         <span class="step-badge">2</span>
-                        <div><b>Generate the Free `.apk` File:</b> Go to <b>PWABuilder.com</b> (or <b>WebIntoApp.com</b>), paste your URL, click <b>Package for Store → Android</b>, and download the included <b>`.apk`</b> file (used for direct testing/sideloading without the Play Store).</div>
+                        <div>Drag and drop that <b>entire folder</b> onto <b>Netlify Drop</b> (<code>app.netlify.com/drop</code>) to get your live HTTPS link.</div>
                     </div>
                     <div class="play-step">
                         <span class="step-badge">3</span>
-                        <div><b>Share & Log In:</b> Send the `.apk` file on <b>WhatsApp</b>, <b>Telegram</b>, or <b>Google Drive</b>. Family members tap the APK to install ("Install from Unknown Sources"), tap the top-right <b>Login / Sync</b> badge, and sign in with their own email & password to keep their personal habit streaks synced in the cloud!</div>
+                        <div>Paste your Netlify URL into <b>PWABuilder.com</b> → it will score <b>100% Manifest Found</b> → click <b>Package for Store → Android → Download APK</b>!</div>
                     </div>
 
-                    <div style="font-size:11px; font-weight:800; color:var(--emerald); text-transform:uppercase; margin:12px 0 8px; padding-top:10px; border-top:1px solid var(--border-color);">
-                        Option B: Zero-Warning PWA Install (Android & iPhone)
-                    </div>
-                    <div class="play-step" style="margin-bottom:14px;">
-                        <span class="step-badge" style="background:var(--emerald);">★</span>
-                        <div>Simply send your hosted link to friends on WhatsApp. When they open it in <b>Chrome (Android)</b> or <b>Safari (iOS)</b> and tap <b>Share / Menu → Add to Home Screen</b>, it installs a full-screen app icon with <b>zero security warnings</b> and full cloud login!</div>
-                    </div>
-
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
                         <button onclick="openAuthModal()" class="period-btn" style="background:rgba(99,102,241,0.16); color:var(--brand-light); border-color:var(--brand);">
                             🔐 Account & Cloud Sync
                         </button>
@@ -1920,9 +1936,12 @@
                     </div>
                     <button onclick="closeBackupModal()" style="font-size:18px; color:var(--text-sub); padding:4px;">✕</button>
                 </div>
+                <a id="pwa-helper-download-link" href="#" download="manifest.json" class="direct-anchor-btn hidden" style="margin-bottom:8px;">
+                    ⬇️ Direct File Download
+                </a>
                 <textarea id="backup-json-textarea" class="raw-export-area" style="height:150px;"></textarea>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
-                    <button type="button" onclick="copyBackupJson()" class="btn-secondary" style="padding:11px; font-size:12px;">📋 Copy JSON</button>
+                    <button type="button" onclick="copyBackupJson()" class="btn-secondary" style="padding:11px; font-size:12px;">📋 Copy File Contents</button>
                     <button type="button" id="restore-json-btn" onclick="restoreBackupJson()" class="btn-primary" style="margin-bottom:0; padding:11px; font-size:12px;">🔄 Restore Data</button>
                 </div>
             </div>
@@ -2104,36 +2123,12 @@
     <script>
         (function () {
             /* =========================================================
-             * EMBEDDED PWA MANIFEST (Makes app installable on Android/iOS)
+             * PWA MANIFEST & SERVICE WORKER REGISTRATION (PWABuilder Ready)
              * ========================================================= */
             try {
-                var pwaManifest = {
-                    name: "HabitPulse - Daily Goal & Streak Tracker",
-                    short_name: "HabitPulse",
-                    description: "Track daily goals, weekly streaks, monthly heatmaps, and export to Google Sheets.",
-                    start_url: "./index.html",
-                    display: "standalone",
-                    background_color: "#0f172a",
-                    theme_color: "#4f46e5",
-                    orientation: "portrait",
-                    icons: [
-                        {
-                            src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='42' fill='%234f46e5'/><text x='96' y='128' font-size='105' text-anchor='middle'>⚡</text></svg>",
-                            sizes: "192x192",
-                            type: "image/svg+xml",
-                            purpose: "any maskable"
-                        },
-                        {
-                            src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='110' fill='%234f46e5'/><text x='256' y='340' font-size='280' text-anchor='middle'>⚡</text></svg>",
-                            sizes: "512x512",
-                            type: "image/svg+xml",
-                            purpose: "any maskable"
-                        }
-                    ]
-                };
-                var manifestLink = document.getElementById('pwa-manifest-link');
-                if (manifestLink) {
-                    manifestLink.setAttribute('href', 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(pwaManifest)));
+                // Only register service worker when hosted over HTTPS or localhost
+                if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+                    navigator.serviceWorker.register('./sw.js').catch(function () {});
                 }
             } catch (e) {}
 
@@ -3468,23 +3463,141 @@
                 showToast('📋 Copied! Open sheets.new and press Ctrl+V / ⌘V');
             };
 
-            window.downloadPWAHelperFiles = function () {
-                var manifestObj = {
+            /* =========================================================
+             * PWABUILDER.COM MANIFEST, SERVICE WORKER & PNG ICON KIT
+             * ========================================================= */
+            function getPwaManifestObject() {
+                return {
+                    id: "/",
                     name: "HabitPulse - Daily Goal & Streak Tracker",
                     short_name: "HabitPulse",
+                    description: "Mobile habit tracker with daily goals, weekly streaks, monthly heatmaps, cloud login, and Google Sheets export.",
                     start_url: "./index.html",
+                    scope: "./",
                     display: "standalone",
+                    orientation: "portrait",
                     background_color: "#0f172a",
                     theme_color: "#4f46e5",
+                    categories: ["productivity", "health", "lifestyle"],
                     icons: [
-                        { src: "icon-192.png", sizes: "192x192", type: "image/png" },
-                        { src: "icon-512.png", sizes: "512x512", type: "image/png" }
+                        {
+                            src: "icon-192.png",
+                            sizes: "192x192",
+                            type: "image/png",
+                            purpose: "any maskable"
+                        },
+                        {
+                            src: "icon-512.png",
+                            sizes: "512x512",
+                            type: "image/png",
+                            purpose: "any maskable"
+                        }
                     ]
                 };
-                document.getElementById('backup-modal-title').textContent = '📦 PWA manifest.json';
-                document.getElementById('backup-modal-sub').textContent = 'Already embedded via Data URI, or save as manifest.json';
-                document.getElementById('backup-json-textarea').value = JSON.stringify(manifestObj, null, 2);
+            }
+
+            function getServiceWorkerCode() {
+                return [
+                    "const CACHE_NAME = 'habitpulse-pwa-v1';",
+                    "const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];",
+                    "",
+                    "self.addEventListener('install', (event) => {",
+                    "  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).catch(() => {}));",
+                    "  self.skipWaiting();",
+                    "});",
+                    "",
+                    "self.addEventListener('activate', (event) => {",
+                    "  event.waitUntil(self.clients.claim());",
+                    "});",
+                    "",
+                    "self.addEventListener('fetch', (event) => {",
+                    "  if (event.request.method !== 'GET') return;",
+                    "  event.respondWith(",
+                    "    fetch(event.request).catch(() => caches.match(event.request))",
+                    "  );",
+                    "});"
+                ].join('\n');
+            }
+
+            window.openPwaHelperModal = function (fileType) {
+                var isSw = (fileType === 'sw');
+                var fileName = isSw ? 'sw.js' : 'manifest.json';
+                var mime = isSw ? 'application/javascript' : 'application/json';
+                var content = isSw ? getServiceWorkerCode() : JSON.stringify(getPwaManifestObject(), null, 2);
+
+                document.getElementById('backup-modal-title').textContent = '📦 Save as ' + fileName;
+                document.getElementById('backup-modal-sub').textContent = 'Place ' + fileName + ' in the exact same folder as index.html';
+                document.getElementById('backup-json-textarea').value = content;
                 document.getElementById('restore-json-btn').classList.add('hidden');
+
+                var dlAnchor = document.getElementById('pwa-helper-download-link');
+                if (dlAnchor) {
+                    dlAnchor.setAttribute('href', 'data:' + mime + ';charset=utf-8,' + encodeURIComponent(content));
+                    dlAnchor.setAttribute('download', fileName);
+                    dlAnchor.textContent = '⬇️ Download ' + fileName;
+                    dlAnchor.classList.remove('hidden');
+                }
+
+                document.getElementById('backup-modal').classList.remove('hidden');
+                try {
+                    var blob = new Blob([content], { type: mime + ';charset=utf-8;' });
+                    var url = URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+                } catch (e) {}
+            };
+
+            window.downloadGeneratedIcon = function (size) {
+                try {
+                    var canvas = document.createElement('canvas');
+                    canvas.width = size;
+                    canvas.height = size;
+                    var ctx = canvas.getContext('2d');
+
+                    // Draw rounded indigo-purple gradient background
+                    var grad = ctx.createLinearGradient(0, 0, size, size);
+                    grad.addColorStop(0, '#4f46e5');
+                    grad.addColorStop(1, '#9333ea');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(0, 0, size, size);
+
+                    // Draw lightning bolt icon in center
+                    ctx.font = Math.round(size * 0.54) + 'px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText('⚡', size / 2, size / 2 + Math.round(size * 0.03));
+
+                    var dataUrl = canvas.toDataURL('image/png');
+                    var fileName = 'icon-' + size + '.png';
+                    var a = document.createElement('a');
+                    a.href = dataUrl;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    showToast('🖼️ Downloaded ' + fileName + '!');
+                } catch (e) {
+                    showToast('Could not generate icon in this browser');
+                }
+            };
+
+            window.downloadPWAHelperFiles = function () {
+                window.openPwaHelperModal('manifest');
+            };
+
+            window.openBackupModal = function () {
+                document.getElementById('backup-modal-title').textContent = '💾 Backup & Restore Habit Data';
+                document.getElementById('backup-modal-sub').textContent = 'Copy this JSON to save a backup, or paste JSON to restore';
+                document.getElementById('backup-json-textarea').value = JSON.stringify({ habits: state.habits }, null, 2);
+                document.getElementById('restore-json-btn').classList.remove('hidden');
+                var dlAnchor = document.getElementById('pwa-helper-download-link');
+                if (dlAnchor) dlAnchor.classList.add('hidden');
                 document.getElementById('backup-modal').classList.remove('hidden');
             };
 
