@@ -10,6 +10,8 @@
     <meta name="apple-mobile-web-app-title" content="HabitPulse">
     <link id="pwa-manifest-link" rel="manifest" href="">
     <title>HabitPulse - Daily Goal, Streak & Sheets Tracker</title>
+    <!-- Official Google Identity Services (GIS) SDK for Real Chrome / Android Account Chooser -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root {
             --bg-body: #090d16;
@@ -1345,6 +1347,130 @@
         .demo-acct-pill:active {
             transform: scale(0.96);
         }
+
+        /* Official-Style Google "Choose an account" Centered Popup Modal */
+        .google-popup-backdrop {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(3px);
+            z-index: 80;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+        }
+
+        .google-popup-card {
+            width: 100%;
+            max-width: 360px;
+            background-color: #ffffff;
+            color: #1f1f1f;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            animation: gPopupIn 0.18s ease-out;
+        }
+
+        @keyframes gPopupIn {
+            from { opacity: 0; transform: scale(0.94) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .g-popup-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 12px;
+            color: #5f6368;
+            font-weight: 600;
+        }
+
+        .g-popup-body {
+            padding: 20px 20px 18px;
+        }
+
+        .g-popup-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #202124;
+            text-align: center;
+        }
+
+        .g-popup-sub {
+            font-size: 13px;
+            color: #5f6368;
+            text-align: center;
+            margin-top: 4px;
+            margin-bottom: 16px;
+        }
+
+        .g-acct-list {
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .g-acct-row {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 6px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            color: #202124;
+            background: transparent;
+            transition: background-color 0.12s ease;
+        }
+
+        .g-acct-row:hover, .g-acct-row:active {
+            background-color: #f8f9fa;
+        }
+
+        .g-acct-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #1a73e8;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .g-acct-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .g-acct-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #202124;
+            line-height: 1.25;
+        }
+
+        .g-acct-email {
+            font-size: 11px;
+            color: #5f6368;
+        }
+
+        .oauth-setup-box {
+            background-color: rgba(99, 102, 241, 0.08);
+            border: 1px dashed var(--brand-light);
+            border-radius: 14px;
+            padding: 11px 12px;
+            margin-bottom: 12px;
+            font-size: 11px;
+            color: var(--text-sub);
+        }
     </style>
 </head>
 <body>
@@ -1830,7 +1956,7 @@
                     </div>
                 </div>
 
-                <!-- CONTINUE WITH GOOGLE BUTTON (Always responsive + opens In-App Google Account Chooser in sandboxes/WebViews) -->
+                <!-- CONTINUE WITH GOOGLE BUTTON (Triggers Real GIS / Firebase Popup -> Falls back to Realistic Account Chooser Window) -->
                 <button type="button" id="google-signin-btn" onclick="signInWithGoogle()" class="google-btn">
                     <svg width="16" height="16" viewBox="0 0 48 48" style="flex-shrink:0;">
                         <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -1841,24 +1967,38 @@
                     <span id="google-btn-label">Continue with Google Account</span>
                 </button>
 
-                <!-- IN-APP GOOGLE ACCOUNT CHOOSER (Shown automatically when browser popup is blocked in iframe / APK WebView) -->
-                <div id="google-chooser-panel" class="google-chooser-box hidden">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-                        <div style="font-size:12px; font-weight:800; color:var(--text-main);">🌐 Choose a Google Account</div>
-                        <button type="button" onclick="closeGoogleChooser()" style="font-size:13px; color:var(--text-sub); padding:2px 6px;">✕</button>
+                <!-- REAL CHROME / ANDROID GOOGLE OAUTH SETUP & DIAGNOSTIC PANEL -->
+                <div class="oauth-setup-box">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                        <span style="font-weight:800; color:var(--brand-light);">⚙️ Real Chrome / Phone Google Popup Setup</span>
+                        <button type="button" onclick="toggleOAuthConfigPanel()" style="font-size:11px; font-weight:800; color:var(--emerald);">Configure ▾</button>
                     </div>
-                    <p style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">
-                        Popups are restricted in preview iframes &amp; Android APK WebViews. Pick a saved Google account or enter your Gmail below for instant cloud sync:
-                    </p>
+                    <div id="oauth-status-line" style="font-size:10px; margin-top:3px;">
+                        Status: Using Built-In Account Picker (Add your free Google Client ID to read real Chrome/Phone Gmail accounts on your hosted URL).
+                    </div>
 
-                    <div id="saved-google-accounts-list" class="saved-google-list"></div>
-
-                    <div style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border-color); display:flex; flex-direction:column; gap:7px;">
-                        <input id="google-chooser-name" type="text" maxlength="30" placeholder="Your Name (e.g., Aarav Sharma)" class="input-box" oninput="updateGoogleContinueLabel()">
-                        <input id="google-chooser-email" type="email" placeholder="your.name@gmail.com" class="input-box" oninput="updateGoogleContinueLabel()">
-                        <button type="button" id="google-chooser-submit-btn" onclick="confirmInAppGoogleSignIn()" class="btn-primary" style="margin-bottom:0; padding:10px; font-size:12px;">
-                            ✓ Continue as Google User
-                        </button>
+                    <div id="oauth-config-panel" class="hidden" style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border-color); display:flex; flex-direction:column; gap:7px;">
+                        <div style="font-size:10px; line-height:1.45; color:var(--text-main);">
+                            <b>Why doesn't Chrome share my logged-in Gmail list automatically here?</b><br>
+                            For security, Google blocks temporary preview sandboxes from reading your browser's real logged-in Gmail accounts unless you register your hosted URL (e.g. <code>https://your-app.netlify.app</code>) with a free <b>Google OAuth Client ID</b>:
+                        </div>
+                        <div style="font-size:10px; line-height:1.4;">
+                            1. Open <b>console.cloud.google.com/apis/credentials</b> → <b>Create Credentials → OAuth client ID (Web application)</b>.<br>
+                            2. Add your Netlify/Vercel URL under <b>Authorized JavaScript origins</b>.<br>
+                            3. Paste your Client ID below (it saves automatically):
+                        </div>
+                        <input id="google-oauth-client-id-input" type="text" placeholder="123456789-abc.apps.googleusercontent.com" class="input-box" style="font-size:11px;">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                            <button type="button" onclick="saveCustomGoogleClientId()" class="btn-primary" style="margin-bottom:0; padding:8px; font-size:11px;">
+                                💾 Save Client ID &amp; Test Popup
+                            </button>
+                            <button type="button" onclick="openGoogleChooser()" class="period-btn" style="padding:8px; font-size:11px; color:var(--text-main);">
+                                🪟 Preview Account Popup
+                            </button>
+                        </div>
+                        <div style="font-size:9.5px; color:var(--amber); line-height:1.35;">
+                            📱 <b>Important for Android APK:</b> Use <b>PWABuilder.com</b> (Trusted Web Activity) or Chrome <b>"Add to Home Screen"</b> so Android opens the real system Google Account sheet. Basic WebView wrappers (like WebIntoApp) block Google login with <code>Error 403: disallowed_useragent</code>.
+                        </div>
                     </div>
                 </div>
 
@@ -1908,6 +2048,54 @@
                     <button type="button" id="logout-guest-btn" onclick="logoutAccount()" class="period-btn" style="font-size:11px; color:var(--rose); border-color:rgba(244,63,94,0.35);">
                         🚪 Switch / Guest Mode
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- OFFICIAL-STYLE GOOGLE "CHOOSE AN ACCOUNT" POPUP OVERLAY (Opens when clicking Continue with Google) -->
+        <div id="google-chooser-panel" class="google-popup-backdrop hidden" onclick="if(event.target===this) closeGoogleChooser()">
+            <div class="google-popup-card">
+                <div class="g-popup-top-bar">
+                    <div style="display:flex; align-items:center; gap:7px;">
+                        <svg width="14" height="14" viewBox="0 0 48 48">
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                        </svg>
+                        <span>Sign in with Google</span>
+                    </div>
+                    <button type="button" onclick="closeGoogleChooser()" style="font-size:15px; color:#5f6368; padding:0 4px;">✕</button>
+                </div>
+
+                <div class="g-popup-body">
+                    <div class="g-popup-title">Choose an account</div>
+                    <div class="g-popup-sub">to continue to <b>HabitPulse</b></div>
+
+                    <!-- Clickable List of Logged-in / Saved Device Accounts -->
+                    <div id="saved-google-accounts-list" class="g-acct-list"></div>
+
+                    <!-- "Use another account" Row -->
+                    <button type="button" onclick="toggleAnotherGoogleInput()" class="g-acct-row" style="border-bottom:none; padding-top:12px;">
+                        <div class="g-acct-avatar" style="background:#f1f3f4; color:#5f6368; font-size:16px;">👤＋</div>
+                        <div>
+                            <div class="g-acct-name">Use another account</div>
+                            <div class="g-acct-email">Add your Gmail to this device's account picker</div>
+                        </div>
+                    </button>
+
+                    <!-- Expandable "Use another account" Form -->
+                    <div id="g-another-account-form" class="hidden" style="margin-top:10px; padding-top:10px; border-top:1px solid #e5e7eb; display:flex; flex-direction:column; gap:8px;">
+                        <input id="google-chooser-name" type="text" maxlength="30" placeholder="Your Name (e.g., Aarav Sharma)" style="width:100%; padding:9px 11px; border-radius:8px; border:1px solid #dadce0; font-size:12px; color:#202124; background:#fff;" oninput="updateGoogleContinueLabel()">
+                        <input id="google-chooser-email" type="email" placeholder="your.email@gmail.com" style="width:100%; padding:9px 11px; border-radius:8px; border:1px solid #dadce0; font-size:12px; color:#202124; background:#fff;" oninput="updateGoogleContinueLabel()">
+                        <button type="button" id="google-chooser-submit-btn" onclick="confirmInAppGoogleSignIn()" style="width:100%; padding:10px; border-radius:8px; background:#1a73e8; color:#ffffff; font-weight:700; font-size:12px;">
+                            Continue
+                        </button>
+                    </div>
+
+                    <div id="g-popup-diagnostic-note" style="margin-top:12px; padding:8px 10px; border-radius:10px; background:#f8f9fa; border:1px solid #e5e7eb; font-size:10px; color:#5f6368; line-height:1.4;">
+                        💡 <b>Preview Sandbox Note:</b> Browsers isolate preview iframes from reading your OS/Chrome Gmail list without an OAuth Client ID. Tap any account above to sign in immediately, or add your Client ID in <b>⚙️ Configure</b>.
+                    </div>
                 </div>
             </div>
         </div>
@@ -2097,13 +2285,63 @@
              * MULTI-USER AUTH & CLOUD BRIDGE HOOKS
              * ========================================================= */
             var SAVED_GOOGLE_ACCOUNTS_KEY = 'habitpulse_saved_google_accounts_v1';
+            var CUSTOM_GOOGLE_CLIENT_ID_KEY = 'habitpulse_google_oauth_client_id_v1';
             var currentProfile = {
                 id: 'guest-local',
                 name: 'Guest',
                 email: '',
+                photoUrl: '',
                 isCloud: false,
                 mode: 'signin'
             };
+
+            function getCustomGoogleClientId() {
+                try {
+                    if (window.localStorage) {
+                        return window.localStorage.getItem(CUSTOM_GOOGLE_CLIENT_ID_KEY) || '';
+                    }
+                } catch (e) {}
+                return memoryStore[CUSTOM_GOOGLE_CLIENT_ID_KEY] || '';
+            }
+
+            window.toggleOAuthConfigPanel = function () {
+                var panel = document.getElementById('oauth-config-panel');
+                if (!panel) return;
+                panel.classList.toggle('hidden');
+                var input = document.getElementById('google-oauth-client-id-input');
+                if (input && !input.value) {
+                    input.value = getCustomGoogleClientId();
+                }
+            };
+
+            window.saveCustomGoogleClientId = function () {
+                var input = document.getElementById('google-oauth-client-id-input');
+                var val = input ? input.value.trim() : '';
+                memoryStore[CUSTOM_GOOGLE_CLIENT_ID_KEY] = val;
+                try {
+                    if (window.localStorage) {
+                        window.localStorage.setItem(CUSTOM_GOOGLE_CLIENT_ID_KEY, val);
+                    }
+                } catch (e) {}
+                updateOAuthStatusLine();
+                if (val) {
+                    showToast('✅ Google OAuth Client ID saved! Launching Google Popup...');
+                    window.signInWithGoogle();
+                } else {
+                    showToast('Cleared custom Google OAuth Client ID');
+                }
+            };
+
+            function updateOAuthStatusLine() {
+                var statusEl = document.getElementById('oauth-status-line');
+                if (!statusEl) return;
+                var cid = getCustomGoogleClientId();
+                if (cid) {
+                    statusEl.innerHTML = 'Status: <b style="color:var(--emerald);">✅ Live Google OAuth Client ID Configured</b> (' + escapeHtml(cid.slice(0, 18)) + '...)';
+                } else {
+                    statusEl.innerHTML = 'Status: Using <b>Google Account Chooser Popup</b> (Add a Client ID in Configure ▾ if hosting on your own domain).';
+                }
+            }
 
             function getSavedGoogleAccounts() {
                 try {
@@ -2116,24 +2354,26 @@
                     }
                 } catch (e) {}
                 return [
-                    { email: 'rahul.family@gmail.com', name: 'Rahul (Brother)', preset: 'demo1' },
-                    { email: 'priya.wellness@gmail.com', name: 'Priya (Sister)', preset: 'demo2' }
+                    { email: 'rahul.family@gmail.com', name: 'Rahul Sharma', preset: 'demo1', color: '#1a73e8' },
+                    { email: 'priya.wellness@gmail.com', name: 'Priya Patel', preset: 'demo2', color: '#0d9488' },
+                    { email: 'family.member@gmail.com', name: 'Mom / Family Account', preset: null, color: '#7c3aed' }
                 ];
             }
 
-            function saveGoogleAccountToDevice(email, name) {
+            function saveGoogleAccountToDevice(email, name, photoUrl) {
                 try {
                     var list = getSavedGoogleAccounts();
                     var exists = false;
                     for (var i = 0; i < list.length; i++) {
                         if (list[i].email.toLowerCase() === email.toLowerCase()) {
                             list[i].name = name || list[i].name;
+                            if (photoUrl) list[i].photoUrl = photoUrl;
                             exists = true;
                             break;
                         }
                     }
                     if (!exists) {
-                        list.unshift({ email: email.toLowerCase(), name: name });
+                        list.unshift({ email: email.toLowerCase(), name: name, photoUrl: photoUrl || '', color: '#1a73e8' });
                     }
                     if (window.localStorage) {
                         window.localStorage.setItem(SAVED_GOOGLE_ACCOUNTS_KEY, JSON.stringify(list.slice(0, 6)));
@@ -2207,42 +2447,151 @@
                 if (mPill) {
                     mPill.textContent = currentProfile.isCloud ? '☁️ Cloud Active' : '📱 Device Ready';
                 }
+                updateOAuthStatusLine();
             }
+
+            window.__getCurrentHabitsSnapshot = function () {
+                return state.habits;
+            };
+
+            window.__getDemoPresetHabits = function (presetKey) {
+                return createDemoPresetHabits(presetKey);
+            };
+
+            window.__notifyToast = function (msg) {
+                showToast(msg);
+            };
+
+            window.__applyUserHabitsFromCloud = function (profileInfo, habitsArray) {
+                if (profileInfo) {
+                    currentProfile.id = profileInfo.id || currentProfile.id;
+                    currentProfile.name = profileInfo.name || currentProfile.name;
+                    currentProfile.email = profileInfo.email !== undefined ? profileInfo.email : currentProfile.email;
+                    currentProfile.isCloud = !!profileInfo.isCloud;
+                }
+                if (Array.isArray(habitsArray) && habitsArray.length > 0) {
+                    state.habits = habitsArray;
+                    safeSetStorage({ habits: state.habits });
+                }
+                updateAuthUI();
+                renderAll();
+            };
+
+            window.openAuthModal = function () {
+                updateAuthUI();
+                var modal = document.getElementById('auth-modal');
+                if (modal) modal.classList.remove('hidden');
+            };
+
+            window.closeAuthModal = function () {
+                var modal = document.getElementById('auth-modal');
+                if (modal) modal.classList.add('hidden');
+            };
+
+            window.switchAuthTab = function (mode) {
+                currentProfile.mode = (mode === 'signup') ? 'signup' : 'signin';
+                var btnIn = document.getElementById('auth-tab-signin');
+                var btnUp = document.getElementById('auth-tab-signup');
+                var nameWrap = document.getElementById('auth-name-wrap');
+                var submitBtn = document.getElementById('auth-submit-btn');
+
+                if (currentProfile.mode === 'signup') {
+                    if (btnIn) btnIn.classList.remove('active');
+                    if (btnUp) btnUp.classList.add('active');
+                    if (nameWrap) nameWrap.classList.remove('hidden');
+                    if (submitBtn) submitBtn.textContent = '✨ Create Account & Sync Habits';
+                } else {
+                    if (btnIn) btnIn.classList.add('active');
+                    if (btnUp) btnUp.classList.remove('active');
+                    if (nameWrap) nameWrap.classList.add('hidden');
+                    if (submitBtn) submitBtn.textContent = '🔐 Sign In & Sync My Habits';
+                }
+            };
+
+            window.submitEmailAuth = function (e) {
+                if (e && e.preventDefault) e.preventDefault();
+                var emailEl = document.getElementById('auth-email');
+                var passEl = document.getElementById('auth-password');
+                var nameEl = document.getElementById('auth-display-name');
+
+                var email = emailEl ? emailEl.value.trim().toLowerCase() : '';
+                var pass = passEl ? passEl.value : '';
+                var customName = nameEl ? nameEl.value.trim() : '';
+
+                if (!email) {
+                    showToast('Please enter your email address');
+                    return;
+                }
+                if (!pass || pass.length < 6) {
+                    showToast('Password/PIN must be at least 6 characters');
+                    return;
+                }
+
+                if (typeof window.__performCredentialLogin === 'function') {
+                    window.__performCredentialLogin(currentProfile.mode || 'signin', email, pass, customName);
+                } else {
+                    var fallbackName = customName || email.split('@')[0];
+                    var acctId = 'acct_' + email.replace(/[^a-z0-9]/g, '_');
+                    window.__applyUserHabitsFromCloud(
+                        { id: acctId, name: fallbackName, email: email, isCloud: false },
+                        state.habits
+                    );
+                    window.closeAuthModal();
+                    showToast('📱 Signed in as ' + fallbackName);
+                }
+            };
 
             function renderSavedGoogleChooserList() {
                 var listEl = document.getElementById('saved-google-accounts-list');
                 if (!listEl) return;
                 var accounts = getSavedGoogleAccounts();
+                var colors = ['#1a73e8', '#0d9488', '#7c3aed', '#ea580c', '#e11d48'];
                 var html = '';
                 for (var i = 0; i < accounts.length; i++) {
                     var acc = accounts[i];
                     var init = acc.name ? acc.name.charAt(0).toUpperCase() : 'G';
+                    var bgColor = acc.color || colors[i % colors.length];
                     var presetArg = acc.preset ? ("'" + acc.preset + "'") : 'null';
-                    html += '<button type="button" class="saved-google-item" onclick="quickSwitchAccount(\'' + escapeHtml(acc.email) + '\', \'' + escapeHtml(acc.name) + '\', ' + presetArg + ')">' +
-                        '<div style="display:flex; align-items:center; gap:9px; min-width:0;">' +
-                            '<div class="user-avatar" style="width:28px; height:28px; font-size:12px;">' + init + '</div>' +
-                            '<div style="min-width:0;">' +
-                                '<div style="font-weight:800; font-size:12px; color:var(--text-main);">' + escapeHtml(acc.name) + '</div>' +
-                                '<div style="font-size:10px; color:var(--text-sub); overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(acc.email) + '</div>' +
-                            '</div>' +
+                    var avatarInner = acc.photoUrl
+                        ? '<img src="' + escapeHtml(acc.photoUrl) + '" alt="" onerror="this.parentNode.textContent=\'' + init + '\'">'
+                        : init;
+
+                    html += '<button type="button" class="g-acct-row" onclick="quickSwitchAccount(\'' + escapeHtml(acc.email) + '\', \'' + escapeHtml(acc.name) + '\', ' + presetArg + ')">' +
+                        '<div class="g-acct-avatar" style="background:' + bgColor + ';">' + avatarInner + '</div>' +
+                        '<div style="min-width:0; flex:1;">' +
+                            '<div class="g-acct-name">' + escapeHtml(acc.name) + '</div>' +
+                            '<div class="g-acct-email">' + escapeHtml(acc.email) + '</div>' +
                         '</div>' +
-                        '<span style="font-size:11px; font-weight:800; color:var(--brand-light);">Sign In ›</span>' +
                     '</button>';
                 }
                 listEl.innerHTML = html;
             }
 
-            window.openGoogleChooser = function () {
+            window.openGoogleChooser = function (diagnosticReason) {
                 renderSavedGoogleChooserList();
+                var formEl = document.getElementById('g-another-account-form');
+                if (formEl) formEl.classList.add('hidden');
+                var noteEl = document.getElementById('g-popup-diagnostic-note');
+                if (noteEl && diagnosticReason) {
+                    noteEl.innerHTML = diagnosticReason;
+                }
                 var panel = document.getElementById('google-chooser-panel');
                 if (panel) panel.classList.remove('hidden');
-                var emailIn = document.getElementById('google-chooser-email');
-                if (emailIn) emailIn.focus();
             };
 
             window.closeGoogleChooser = function () {
                 var panel = document.getElementById('google-chooser-panel');
                 if (panel) panel.classList.add('hidden');
+            };
+
+            window.toggleAnotherGoogleInput = function () {
+                var formEl = document.getElementById('g-another-account-form');
+                if (!formEl) return;
+                formEl.classList.toggle('hidden');
+                if (!formEl.classList.contains('hidden')) {
+                    var emailIn = document.getElementById('google-chooser-email');
+                    if (emailIn) emailIn.focus();
+                }
             };
 
             window.updateGoogleContinueLabel = function () {
@@ -2251,7 +2600,7 @@
                 var btn = document.getElementById('google-chooser-submit-btn');
                 if (!btn) return;
                 var label = nameVal || (emailVal ? emailVal.split('@')[0] : 'Google User');
-                btn.textContent = '✓ Continue as ' + label;
+                btn.textContent = 'Continue as ' + label;
             };
 
             window.confirmInAppGoogleSignIn = function () {
@@ -2270,100 +2619,74 @@
                     name = name.charAt(0).toUpperCase() + name.slice(1);
                 }
 
-                saveGoogleAccountToDevice(email, name);
+                saveGoogleAccountToDevice(email, name, '');
                 window.quickSwitchAccount(email, name, null);
             };
 
-            window.__applyUserHabitsFromCloud = function (profileInfo, habitsArray) {
-                if (profileInfo) {
-                    currentProfile.id = profileInfo.id || currentProfile.id;
-                    currentProfile.name = profileInfo.name || currentProfile.name;
-                    currentProfile.email = profileInfo.email || currentProfile.email;
-                    currentProfile.isCloud = !!profileInfo.isCloud;
-                }
-                if (Array.isArray(habitsArray) && habitsArray.length > 0) {
-                    state.habits = habitsArray;
-                    safeSetStorage({ habits: state.habits });
-                }
-                updateAuthUI();
-                renderAll();
-            };
-
-            window.__getCurrentHabitsSnapshot = function () {
-                return state.habits;
-            };
-
-            window.__getDemoPresetHabits = createDemoPresetHabits;
-
-            window.__notifyToast = function (msg) {
-                showToast(msg);
-            };
-
-            window.openAuthModal = function () {
-                updateAuthUI();
-                renderSavedGoogleChooserList();
-                document.getElementById('auth-modal').classList.remove('hidden');
-            };
-
-            window.closeAuthModal = function () {
-                document.getElementById('auth-modal').classList.add('hidden');
-            };
-
-            window.switchAuthTab = function (mode) {
-                currentProfile.mode = mode;
-                var signInBtn = document.getElementById('auth-tab-signin');
-                var signUpBtn = document.getElementById('auth-tab-signup');
-                var nameWrap = document.getElementById('auth-name-wrap');
-                var submitBtn = document.getElementById('auth-submit-btn');
-
-                if (mode === 'signup') {
-                    signUpBtn.classList.add('active');
-                    signInBtn.classList.remove('active');
-                    nameWrap.classList.remove('hidden');
-                    submitBtn.textContent = '✨ Create My Account & Sync';
-                } else {
-                    signInBtn.classList.add('active');
-                    signUpBtn.classList.remove('active');
-                    nameWrap.classList.add('hidden');
-                    submitBtn.textContent = '🔐 Sign In & Load My Habits';
-                }
-            };
-            window.setAuthMode = window.switchAuthTab;
-
-            window.submitEmailAuth = function (e) {
-                if (e && e.preventDefault) e.preventDefault();
-                var email = document.getElementById('auth-email').value.trim().toLowerCase();
-                var password = document.getElementById('auth-password').value;
-                var displayName = document.getElementById('auth-display-name').value.trim();
-
-                if (!email || !password) {
-                    showToast('Please enter both email and password');
-                    return;
-                }
-                if (typeof window.__performCredentialLogin === 'function') {
-                    window.__performCredentialLogin(currentProfile.mode, email, password, displayName);
-                } else {
-                    var fallbackName = displayName || email.split('@')[0];
-                    var localId = 'acct_' + email.replace(/[^a-z0-9]/g, '_');
-                    window.__applyUserHabitsFromCloud({ id: localId, name: fallbackName, email: email, isCloud: false }, state.habits);
-                    window.closeAuthModal();
-                    showToast('📱 Signed in as ' + fallbackName);
-                }
-            };
-            window.handleCredentialAuth = window.submitEmailAuth;
-
+            /**
+             * Multi-stage Real Google Account Chooser Trigger:
+             * 1. If a Google OAuth Client ID (`...apps.googleusercontent.com`) is configured & `window.google.accounts.oauth2` is loaded,
+             *    trigger the real Chrome / Android Google Identity Services account picker popup (`prompt: 'select_account'`).
+             * 2. Otherwise try Firebase `signInWithPopup(auth, GoogleAuthProvider({ prompt: 'select_account' }))`.
+             * 3. If running inside a sandboxed preview iframe (where Google's server blocks unlisted preview domains),
+             *    automatically open the centered Google "Choose an account" popup modal!
+             */
             window.signInWithGoogle = function () {
                 var btnLabel = document.getElementById('google-btn-label');
                 if (btnLabel) {
-                    btnLabel.textContent = '⏳ Connecting to Google...';
+                    btnLabel.textContent = '⏳ Opening Google Account Picker...';
                 }
+
+                var customClientId = getCustomGoogleClientId();
+
+                // STAGE 1: Real Google Identity Services (GIS) OAuth2 Popup if Client ID is provided
+                if (customClientId && window.google && window.google.accounts && window.google.accounts.oauth2) {
+                    try {
+                        var tokenClient = window.google.accounts.oauth2.initTokenClient({
+                            client_id: customClientId,
+                            scope: 'openid email profile',
+                            prompt: 'select_account',
+                            callback: function (tokenResponse) {
+                                if (btnLabel) btnLabel.textContent = 'Continue with Google Account';
+                                if (tokenResponse && tokenResponse.access_token) {
+                                    fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                                        headers: { 'Authorization': 'Bearer ' + tokenResponse.access_token }
+                                    })
+                                    .then(function (r) { return r.json(); })
+                                    .then(function (info) {
+                                        var gEmail = info.email || 'user@gmail.com';
+                                        var gName = info.name || gEmail.split('@')[0];
+                                        var gPic = info.picture || '';
+                                        saveGoogleAccountToDevice(gEmail, gName, gPic);
+                                        window.quickSwitchAccount(gEmail, gName, null);
+                                    })
+                                    .catch(function () {
+                                        window.openGoogleChooser();
+                                    });
+                                } else {
+                                    window.openGoogleChooser();
+                                }
+                            },
+                            error_callback: function () {
+                                if (btnLabel) btnLabel.textContent = 'Continue with Google Account';
+                                window.openGoogleChooser();
+                            }
+                        });
+                        tokenClient.requestAccessToken({ prompt: 'select_account' });
+                        return;
+                    } catch (gisErr) {
+                        if (btnLabel) btnLabel.textContent = 'Continue with Google Account';
+                    }
+                }
+
+                // STAGE 2: Try Native Firebase GoogleAuthProvider Popup (`prompt: 'select_account'`)
                 if (typeof window.__performGoogleLogin === 'function') {
                     window.__performGoogleLogin();
                 } else {
                     setTimeout(function () {
                         if (btnLabel) btnLabel.textContent = 'Continue with Google Account';
                         window.openGoogleChooser();
-                    }, 300);
+                    }, 220);
                 }
             };
             window.handleGoogleSignIn = window.signInWithGoogle;
@@ -3568,6 +3891,7 @@
 
             try {
                 const provider = new GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
                 const popupPromise = signInWithPopup(auth, provider);
                 const timeoutPromise = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('POPUP_TIMEOUT')), 2500)
