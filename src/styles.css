@@ -1190,6 +1190,16 @@ button:disabled {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    overflow: hidden;
+}
+
+/* Google profile photo ~96px aata hai — avatar ke andar fit karna zaroori hai */
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 50%;
 }
 
 .user-meta {

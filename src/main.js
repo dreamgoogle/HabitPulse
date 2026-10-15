@@ -67,8 +67,9 @@ function renderAuthUI() {
     badge.classList.toggle('local', !u);
   }
 
-  const avatar = $('header-user-avatar');
-  if (avatar) {
+  for (const id of ['header-user-avatar', 'modal-user-avatar']) {
+    const avatar = $(id);
+    if (!avatar) continue;
     if (u?.photoURL) {
       avatar.innerHTML = `<img src="${escapeHtml(u.photoURL)}" alt="" referrerpolicy="no-referrer">`;
     } else {
