@@ -99,7 +99,9 @@ cp .env.example .env.local
 
 ```bash
 npm install
-npm run icons          # PWA icons generate (ek baar)
+                       # NOTE: `npm run icons` chalane ki zaroorat NAHI hai —
+                       # icons already repo mein committed hain. Wo script sirf
+                       # tab chahiye jab aap brand color ya logo badlein.
 npm run dev            # http://localhost:5173
 ```
 
