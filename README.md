@@ -222,9 +222,22 @@ public/                 manifest, sw, icons, privacy, delete-account
 
 ---
 
+## Tests
+
+```bash
+npm test
+```
+
+48 security tests `firestore.rules` par — emulator apne aap start/stop hota hai,
+koi live project ya Blaze plan nahi chahiye. Details `tests/README.md` mein.
+
+⚠️ Ye tests likhe ja chuke hain par **abhi tak execute nahi hue** — jis environment
+mein likhe gaye wahan emulator download block tha. Pehli baar chalane par kuch
+assertions adjust karni pad sakti hain.
+
 ## Abhi kya baaki hai
 
-- [ ] `firestore.rules` ke liye emulator tests (`@firebase/rules-unit-testing`)
+- [ ] Tests ko ek baar actually chalakar green karna
 - [ ] Daily reminder notifications (Capacitor raaste par)
 - [ ] Habit edit UI (rename backend mein hai, UI nahi)
 - [ ] Firebase chunk 134 kB gzipped hai — `firebase/firestore/lite` ya lazy import se kam ho sakta hai

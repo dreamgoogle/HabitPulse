@@ -42,9 +42,14 @@ service cloud.firestore {
                     && request.resource.data.uid == uid
                     && request.resource.data.email == request.auth.token.email;
 
-      // User khud ko admin nahi bana sakta
+      // User khud ko admin nahi bana sakta, aur email token se hi bandha rehta hai.
+      // (Email check pehle sirf create par tha — tab user baad mein apna email
+      //  badal kar kisi aur ka likh sakta tha, jisse admin panel galat data dikhata.
+      //  Legit updates par asar nahi: client hamesha user.email bhejta hai, aur
+      //  Google email badalne par token mein bhi naya hi email aata hai.)
       allow update: if isOwner(uid)
                     && request.resource.data.uid == resource.data.uid
+                    && request.resource.data.email == request.auth.token.email
                     && !request.resource.data.diff(resource.data)
                           .affectedKeys().hasAny(['role', 'uid']);
 
