@@ -99,11 +99,36 @@ cp .env.example .env.local
 
 ```bash
 npm install
-                       # NOTE: `npm run icons` chalane ki zaroorat NAHI hai —
-                       # icons already repo mein committed hain. Wo script sirf
-                       # tab chahiye jab aap brand color ya logo badlein.
-npm run dev            # http://localhost:5173
+cd functions && npm install && cd ..   # sirf emulator/Functions ke liye
 ```
+
+> `npm run icons` chalane ki zaroorat NAHI hai — icons already repo mein
+> committed hain. Wo script sirf tab chahiye jab brand color ya logo badlein.
+
+**Local testing (emulators) — do terminal chahiye:**
+
+```bash
+# Terminal 1 — emulators
+npm run emulators
+
+# Terminal 2 — app
+npm run dev
+```
+
+| URL | Kya hai |
+|---|---|
+| http://localhost:5173 | App |
+| http://localhost:4000 | Emulator UI — Firestore ka data live dekhiye |
+
+Browser console mein orange `EMULATOR MODE` badge dikhna chahiye.
+
+> **Do terminal kyun?** `firebase emulators:exec "vite"` ek command mein dono
+> chala to deta hai, par wo vite ka output pipe kar deta hai — aur vite pipe
+> hone par apna banner aur HMR/error messages dikhata hi nahi. Screen blank
+> rehti hai. Isliye dono alag.
+
+**Asli project ke saath:** `npm run dev` akela (`.env.local` mein
+`VITE_USE_EMULATORS=false` rakhiye).
 
 ### 4. Rules & Functions deploy
 
