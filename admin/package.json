@@ -1,0 +1,17 @@
+{
+  "name": "habitpulse-admin",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5174",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "firebase": "^11.6.1"
+  },
+  "devDependencies": {
+    "vite": "^5.4.11"
+  }
+}
