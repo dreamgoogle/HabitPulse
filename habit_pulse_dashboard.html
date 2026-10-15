@@ -1,0 +1,3375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HabitPulse">
+    <link id="pwa-manifest-link" rel="manifest" href="">
+    <title>HabitPulse - Daily Goal, Streak & Sheets Tracker</title>
+    <style>
+        :root {
+            --bg-body: #090d16;
+            --bg-shell: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-soft: rgba(30, 41, 59, 0.65);
+            --bg-input: #0f172a;
+            --border-color: rgba(148, 163, 184, 0.14);
+            --border-strong: rgba(148, 163, 184, 0.25);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+            --brand: #6366f1;
+            --brand-light: #818cf8;
+            --brand-dark: #4f46e5;
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --rose: #f43f5e;
+            --sky: #0ea5e9;
+            --purple: #a855f7;
+            --radius-xl: 22px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow-lg: 0 12px 32px -8px rgba(0, 0, 0, 0.5);
+        }
+
+        html.light {
+            --bg-body: #e2e8f0;
+            --bg-shell: #ffffff;
+            --bg-card: #f8fafc;
+            --bg-card-soft: #f1f5f9;
+            --bg-input: #ffffff;
+            --border-color: #e2e8f0;
+            --border-strong: #cbd5e1;
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --text-muted: #64748b;
+            --shadow-lg: 0 12px 28px -8px rgba(15, 23, 42, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            line-height: 1.4;
+            overflow-x: hidden;
+        }
+
+        button, input, select {
+            font-family: inherit;
+            color: inherit;
+            border: none;
+            background: none;
+        }
+
+        button {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        button:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        /* Mobile App Container */
+        .app-shell {
+            width: 100%;
+            max-width: 440px;
+            min-height: 100vh;
+            background-color: var(--bg-shell);
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Sticky Header */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background-color: var(--bg-shell);
+            border-bottom: 1px solid var(--border-color);
+            padding: 14px 18px 12px;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .brand-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--brand), var(--purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 800;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        .brand-date {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--brand-light);
+        }
+
+        .brand-title {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 11px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-sub);
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.92);
+        }
+
+        /* Week Strip Navigator */
+        .week-nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .week-nav-btn {
+            padding: 4px 10px;
+            border-radius: 8px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-sub);
+        }
+
+        .week-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-sub);
+        }
+
+        .week-strip {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+
+        .day-pill {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 7px 2px;
+            border-radius: 14px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            transition: all 0.18s ease;
+        }
+
+        .day-pill.today {
+            border-color: var(--brand-light);
+        }
+
+        .day-pill.selected {
+            background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 6px 14px rgba(99, 102, 241, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .day-pill .day-name {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            opacity: 0.75;
+        }
+
+        .day-pill .day-num {
+            font-size: 13px;
+            font-weight: 800;
+            margin-top: 2px;
+        }
+
+        .day-pill .day-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            margin-top: 4px;
+            background-color: transparent;
+        }
+
+        .day-pill .day-dot.partial {
+            background-color: var(--brand-light);
+        }
+
+        .day-pill.selected .day-dot.partial {
+            background-color: #ffffff;
+        }
+
+        .day-pill .day-dot.done {
+            background-color: var(--emerald);
+        }
+
+        .day-pill.selected .day-dot.done {
+            background-color: #fde047;
+        }
+
+        /* Main Scrollable Area */
+        .app-main {
+            flex: 1;
+            padding: 16px 18px 96px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .tab-view {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Hero Card */
+        .hero-card {
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 55%, #1e1b4b 100%);
+            border-radius: var(--radius-xl);
+            padding: 18px;
+            color: #ffffff;
+            box-shadow: 0 12px 24px -6px rgba(79, 70, 229, 0.45);
+        }
+
+        .hero-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 3px 9px;
+            border-radius: 99px;
+            background-color: rgba(255, 255, 255, 0.16);
+            margin-bottom: 6px;
+        }
+
+        .hero-title {
+            font-size: 19px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .hero-sub {
+            font-size: 12px;
+            color: rgba(224, 231, 255, 0.85);
+            margin-top: 3px;
+        }
+
+        .ring-wrap {
+            position: relative;
+            width: 74px;
+            height: 74px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ring-svg {
+            width: 74px;
+            height: 74px;
+            transform: rotate(-90deg);
+        }
+
+        .ring-val {
+            position: absolute;
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .hero-kpis {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .kpi-box {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 13px;
+            padding: 8px 10px;
+        }
+
+        .kpi-val {
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .kpi-lbl {
+            font-size: 10px;
+            color: rgba(224, 231, 255, 0.8);
+            margin-top: 2px;
+        }
+
+        /* Generic Section Cards */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 16px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .card-subtitle {
+            font-size: 11px;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+
+        .badge-pill {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 99px;
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--emerald);
+            white-space: nowrap;
+        }
+
+        /* Weekly Bar Chart */
+        .bar-chart-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            height: 128px;
+            align-items: end;
+            padding-top: 8px;
+        }
+
+        .bar-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+            cursor: pointer;
+        }
+
+        .bar-ratio {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-sub);
+            margin-bottom: 5px;
+        }
+
+        .bar-col.active .bar-ratio {
+            color: var(--brand-light);
+        }
+
+        .bar-track {
+            width: 100%;
+            max-width: 28px;
+            height: 82px;
+            background-color: var(--bg-shell);
+            border-radius: 10px;
+            padding: 2px;
+            display: flex;
+            align-items: flex-end;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .bar-fill {
+            width: 100%;
+            border-radius: 7px;
+            transition: height 0.35s ease;
+            background: var(--brand);
+        }
+
+        .bar-fill.perfect {
+            background: linear-gradient(to top, var(--emerald), #34d399);
+        }
+
+        .bar-fill.empty {
+            background: rgba(148, 163, 184, 0.25);
+        }
+
+        .bar-day {
+            margin-top: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-sub);
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .bar-col.active .bar-day {
+            background-color: rgba(99, 102, 241, 0.2);
+            color: var(--brand-light);
+        }
+
+        /* Category Filter Pills */
+        .filter-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .cat-scroll {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            scrollbar-width: none;
+        }
+
+        .cat-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cat-btn {
+            padding: 6px 12px;
+            border-radius: 11px;
+            font-size: 11px;
+            font-weight: 700;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-sub);
+            white-space: nowrap;
+        }
+
+        .cat-btn.active {
+            background-color: var(--brand);
+            color: #ffffff;
+            border-color: var(--brand);
+        }
+
+        /* Habit Cards */
+        .habits-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .habit-item {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            transition: border-color 0.2s ease, opacity 0.2s ease;
+        }
+
+        .habit-item.completed {
+            border-color: rgba(16, 185, 129, 0.35);
+            background-color: var(--bg-card-soft);
+        }
+
+        .habit-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .habit-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            background-color: rgba(99, 102, 241, 0.14);
+        }
+
+        .habit-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .habit-name {
+            font-size: 14px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .habit-item.completed .habit-name {
+            text-decoration: line-through;
+            color: var(--text-sub);
+        }
+
+        .habit-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 3px;
+            font-size: 11px;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        .streak-tag {
+            color: var(--amber);
+            font-weight: 700;
+        }
+
+        .mini-dots {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .mini-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--border-strong);
+        }
+
+        .mini-dot.on {
+            background-color: var(--emerald);
+        }
+
+        .habit-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .del-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .del-btn:hover {
+            color: var(--rose);
+            background-color: rgba(244, 63, 94, 0.1);
+        }
+
+        .check-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 13px;
+            background-color: var(--bg-shell);
+            border: 1px solid var(--border-strong);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 800;
+            transition: all 0.15s ease;
+        }
+
+        .check-btn.done {
+            background-color: var(--emerald);
+            border-color: var(--emerald);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+        }
+
+        /* Week Matrix Table */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        .matrix-table th {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            padding-bottom: 8px;
+        }
+
+        .matrix-table td {
+            padding: 7px 2px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .matrix-habit-cell {
+            text-align: left;
+            padding-right: 6px;
+            max-width: 120px;
+        }
+
+        .matrix-toggle {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background-color: var(--bg-shell);
+            border: 1px solid var(--border-color);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #ffffff;
+        }
+
+        .matrix-toggle.done {
+            background-color: var(--brand);
+            border-color: var(--brand);
+        }
+
+        /* Monthly Heatmap Grid */
+        .month-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .month-stat-card {
+            background-color: var(--bg-shell);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 9px 6px;
+            text-align: center;
+        }
+
+        .month-stat-val {
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .month-stat-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+
+        .cal-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+
+        .cal-cell {
+            height: 40px;
+            border-radius: 10px;
+            background-color: var(--bg-shell);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-sub);
+            transition: transform 0.12s ease;
+        }
+
+        .cal-cell.lvl-1 {
+            background-color: rgba(99, 102, 241, 0.28);
+            color: #e0e7ff;
+        }
+
+        .cal-cell.lvl-2 {
+            background-color: rgba(99, 102, 241, 0.6);
+            color: #ffffff;
+        }
+
+        .cal-cell.lvl-3 {
+            background-color: var(--brand);
+            color: #ffffff;
+        }
+
+        .cal-cell.lvl-4 {
+            background-color: var(--emerald);
+            color: #ffffff;
+            border-color: transparent;
+        }
+
+        .cal-cell.selected {
+            outline: 2px solid #fbbf24;
+            outline-offset: 1px;
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        .cal-cell .sub-ratio {
+            font-size: 8px;
+            opacity: 0.85;
+            line-height: 1;
+            margin-top: 1px;
+        }
+
+        .chip-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .inspector-chip {
+            padding: 6px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            background-color: var(--bg-shell);
+            border: 1px solid var(--border-color);
+            color: var(--text-sub);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .inspector-chip.done {
+            background-color: var(--emerald);
+            border-color: var(--emerald);
+            color: #ffffff;
+        }
+
+        /* Progress Bar Row */
+        .progress-row {
+            background-color: var(--bg-shell);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+
+        .progress-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 7px;
+            border-radius: 99px;
+            background-color: var(--bg-card);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--brand), var(--emerald));
+            transition: width 0.35s ease;
+        }
+
+        /* Sheets Export Center */
+        .banner-6m {
+            background: linear-gradient(135deg, #059669, #0d9488);
+            border-radius: var(--radius-xl);
+            padding: 15px 16px;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .banner-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-white {
+            background-color: #ffffff;
+            color: #065f46;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 10px 10px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-white.alt {
+            background-color: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+        }
+
+        .period-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .period-btn {
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            background-color: var(--bg-shell);
+            border: 1px solid var(--border-color);
+            color: var(--text-sub);
+        }
+
+        .period-btn.active {
+            background-color: var(--brand);
+            border-color: var(--brand);
+            color: #ffffff;
+        }
+
+        .date-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 9px 11px;
+            border-radius: 11px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-strong);
+            font-size: 12px;
+            color: var(--text-main);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 13px 16px;
+            border-radius: 14px;
+            background-color: var(--emerald);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 13px 16px;
+            border-radius: 14px;
+            background-color: var(--brand);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .preview-scroll {
+            max-height: 185px;
+            overflow: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: var(--bg-shell);
+            margin: 10px 0 14px;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            text-align: left;
+        }
+
+        .preview-table th, .preview-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .preview-table th {
+            background-color: var(--bg-card);
+            position: sticky;
+            top: 0;
+            font-weight: 700;
+            color: var(--text-sub);
+        }
+
+        .code-snippet {
+            background-color: #020617;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 10px;
+            overflow-x: auto;
+            line-height: 1.45;
+            margin-top: 8px;
+        }
+
+        .raw-export-area {
+            width: 100%;
+            height: 140px;
+            background-color: #020617;
+            color: #a7f3d0;
+            border: 1px solid var(--border-strong);
+            border-radius: 12px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            resize: none;
+            margin-top: 8px;
+        }
+
+        .direct-anchor-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 13px;
+            background-color: var(--emerald);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .step-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--brand);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+
+        .play-step {
+            display: flex;
+            align-items: flex-start;
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-bottom: 10px;
+            line-height: 1.45;
+        }
+
+        /* Fixed Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 440px;
+            background-color: var(--bg-shell);
+            border-top: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            align-items: center;
+            padding: 8px 6px 12px;
+            z-index: 35;
+        }
+
+        .nav-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding: 4px 0;
+        }
+
+        .nav-tab.active {
+            color: var(--brand-light);
+        }
+
+        .fab-add {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--brand), var(--purple));
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -22px auto 0;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.45);
+        }
+
+        /* Modal Overlay */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(2, 6, 23, 0.75);
+            z-index: 50;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-sheet {
+            width: 100%;
+            max-width: 440px;
+            background-color: var(--bg-shell);
+            border-top: 1px solid var(--border-strong);
+            border-radius: 24px 24px 0 0;
+            padding: 20px 18px 26px;
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .emoji-choice {
+            height: 38px;
+            border-radius: 10px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .emoji-choice.selected {
+            border-color: var(--brand);
+            background-color: rgba(99, 102, 241, 0.22);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background-color: #10b981;
+            color: #ffffff;
+            padding: 9px 16px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 800;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+            z-index: 60;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* User Profile & Cloud Sync Badge in Header */
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 4px 10px 4px 5px;
+            border-radius: 99px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-strong);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-main);
+            max-width: 165px;
+            transition: transform 0.15s ease;
+        }
+
+        .user-pill:active {
+            transform: scale(0.95);
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand), var(--emerald));
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .user-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0;
+            line-height: 1.15;
+        }
+
+        .user-name-txt {
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 105px;
+        }
+
+        .sync-status-txt {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--emerald);
+        }
+
+        .sync-status-txt.local {
+            color: var(--amber);
+        }
+
+        .auth-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            background-color: var(--bg-card);
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .auth-tab-btn {
+            padding: 8px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-sub);
+            text-align: center;
+        }
+
+        .auth-tab-btn.active {
+            background-color: var(--brand);
+            color: #ffffff;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 12px;
+            background-color: #ffffff;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 10px;
+        }
+
+        .account-card-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-strong);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <!-- Toast Notification -->
+        <div id="toast" class="toast">Saved!</div>
+
+        <!-- TOP STICKY HEADER -->
+        <header class="app-header">
+            <div class="header-top">
+                <div class="brand-row">
+                    <div class="brand-logo">⚡</div>
+                    <div>
+                        <div id="header-date-str" class="brand-date">TODAY</div>
+                        <div class="brand-title">HabitPulse</div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="user-pill" onclick="openAuthModal()" title="Account & Cloud Sync">
+                        <div id="header-user-avatar" class="user-avatar">👤</div>
+                        <div class="user-meta">
+                            <span id="header-user-name" class="user-name-txt">Login / Sync</span>
+                            <span id="header-sync-badge" class="sync-status-txt local">📱 Local Mode</span>
+                        </div>
+                    </button>
+                    <button class="icon-btn" onclick="openModal()" title="New Habit">＋</button>
+                    <button class="icon-btn" onclick="toggleTheme()" id="theme-btn" title="Switch Theme">☀️</button>
+                </div>
+            </div>
+
+            <!-- Week Strip Controls -->
+            <div class="week-nav-bar">
+                <button class="week-nav-btn" onclick="shiftWeek(-1)">‹ Prev</button>
+                <span id="week-range-lbl" class="week-label">This Week</span>
+                <button id="next-week-btn" class="week-nav-btn" onclick="shiftWeek(1)">Next ›</button>
+            </div>
+            <div id="week-strip" class="week-strip"></div>
+        </header>
+
+        <!-- MAIN TAB CONTENT -->
+        <main class="app-main">
+            <!-- TAB 1: TODAY & WEEKLY STREAK CHART -->
+            <section id="view-today" class="tab-view">
+                <div class="hero-card">
+                    <div class="hero-top">
+                        <div>
+                            <span id="hero-day-badge" class="hero-badge">Today's Progress</span>
+                            <h2 id="hero-status-title" class="hero-title">Keep the momentum!</h2>
+                            <p id="hero-status-sub" class="hero-sub">0 of 5 daily goals completed</p>
+                        </div>
+                        <div class="ring-wrap">
+                            <svg class="ring-svg" viewBox="0 0 74 74">
+                                <circle cx="37" cy="37" r="30" stroke="rgba(255,255,255,0.18)" stroke-width="7" fill="transparent"></circle>
+                                <circle id="progress-ring-circle" cx="37" cy="37" r="30" stroke="#ffffff" stroke-width="7" stroke-dasharray="188.5" stroke-dashoffset="188.5" stroke-linecap="round" fill="transparent"></circle>
+                            </svg>
+                            <span id="progress-ring-pct" class="ring-val">0%</span>
+                        </div>
+                    </div>
+                    <div class="hero-kpis">
+                        <div class="kpi-box">
+                            <div id="kpi-top-streak" class="kpi-val">🔥 0d</div>
+                            <div class="kpi-lbl">Best Streak</div>
+                        </div>
+                        <div class="kpi-box">
+                            <div id="kpi-week-done" class="kpi-val">✅ 0</div>
+                            <div class="kpi-lbl">Week Logs</div>
+                        </div>
+                        <div class="kpi-box">
+                            <div id="kpi-week-rate" class="kpi-val">📈 0%</div>
+                            <div class="kpi-lbl">Week Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Streak Bar Chart (Mon - Sun) -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Weekly Streak Chart</div>
+                            <div class="card-subtitle">Daily completion ratio (Mon – Sun)</div>
+                        </div>
+                        <span id="perfect-days-pill" class="badge-pill">0 Perfect Days</span>
+                    </div>
+                    <div id="weekly-bar-chart" class="bar-chart-grid"></div>
+                </div>
+
+                <!-- Category Filter + Daily Habits Checklist -->
+                <div class="filter-row">
+                    <div class="cat-scroll">
+                        <button class="cat-btn active" data-cat="All" onclick="setCategory('All')">All</button>
+                        <button class="cat-btn" data-cat="Health" onclick="setCategory('Health')">Health</button>
+                        <button class="cat-btn" data-cat="Fitness" onclick="setCategory('Fitness')">Fitness</button>
+                        <button class="cat-btn" data-cat="Mind" onclick="setCategory('Mind')">Mind</button>
+                        <button class="cat-btn" data-cat="Work" onclick="setCategory('Work')">Work</button>
+                    </div>
+                    <button onclick="openModal()" style="font-size:12px; font-weight:800; color:var(--brand-light); white-space:nowrap;">+ Add Goal</button>
+                </div>
+
+                <div id="habits-checklist" class="habits-list"></div>
+            </section>
+
+            <!-- TAB 2: WEEK GRID & STREAK LEADERBOARD -->
+            <section id="view-matrix" class="tab-view hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">7-Day Habit Matrix</div>
+                            <div class="card-subtitle">Tap any cell to log or undo across the week</div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="matrix-table">
+                            <thead>
+                                <tr id="matrix-head-row"></tr>
+                            </thead>
+                            <tbody id="matrix-body-rows"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">🔥 Streak Leaderboard</div>
+                            <div class="card-subtitle">Current active streak & personal best</div>
+                        </div>
+                        <button onclick="resetDemoData()" style="font-size:11px; font-weight:700; color:var(--rose);">Reset Demo</button>
+                    </div>
+                    <div id="leaderboard-list" class="habits-list"></div>
+                </div>
+            </section>
+
+            <!-- TAB 3: MONTHLY HEATMAP & CONSISTENCY -->
+            <section id="view-month" class="tab-view hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <button class="week-nav-btn" onclick="shiftMonth(-1)">‹ Prev</button>
+                        <div style="text-align:center;">
+                            <div id="month-title" class="card-title">October 2026</div>
+                            <div id="month-sub" class="card-subtitle">Monthly Overview</div>
+                        </div>
+                        <button id="next-month-btn" class="week-nav-btn" onclick="shiftMonth(1)">Next ›</button>
+                    </div>
+
+                    <div class="month-kpi-grid">
+                        <div class="month-stat-card">
+                            <div id="m-kpi-logs" class="month-stat-val" style="color:var(--brand-light);">0</div>
+                            <div class="month-stat-lbl">Month Logs</div>
+                        </div>
+                        <div class="month-stat-card">
+                            <div id="m-kpi-perfect" class="month-stat-val" style="color:var(--emerald);">0</div>
+                            <div class="month-stat-lbl">Perfect Days</div>
+                        </div>
+                        <div class="month-stat-card">
+                            <div id="m-kpi-rate" class="month-stat-val" style="color:var(--amber);">0%</div>
+                            <div class="month-stat-lbl">Success Rate</div>
+                        </div>
+                    </div>
+
+                    <div class="cal-weekdays">
+                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    </div>
+                    <div id="month-cal-grid" class="cal-grid"></div>
+                </div>
+
+                <!-- Day Inspector Card -->
+                <div class="card">
+                    <div class="card-header" style="margin-bottom:6px;">
+                        <div>
+                            <div class="card-title">🔍 Selected Date Inspector</div>
+                            <div id="inspector-date-lbl" class="card-subtitle">Tap any calendar day above to inspect or toggle</div>
+                        </div>
+                        <span id="inspector-count-badge" class="badge-pill">0/0 Done</span>
+                    </div>
+                    <div id="inspector-chips" class="chip-list"></div>
+                </div>
+
+                <!-- Per-Habit Monthly Consistency Bars -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">📈 Habit Consistency Breakdown</div>
+                            <div class="card-subtitle">Monthly completion rate per goal</div>
+                        </div>
+                    </div>
+                    <div id="month-habit-bars"></div>
+                </div>
+            </section>
+
+            <!-- TAB 4: GOOGLE SHEETS EXPORT, FREE APK & FAMILY SHARING CENTER -->
+            <section id="view-sheets" class="tab-view hidden">
+                <div class="banner-6m">
+                    <div>
+                        <div style="font-size:10px; font-weight:800; text-transform:uppercase; opacity:0.9;">Instant 6-Month Test Dataset</div>
+                        <div style="font-size:15px; font-weight:800; margin-top:2px;">Simulate & Export 6 Months of Logs</div>
+                        <div style="font-size:11px; opacity:0.92; margin-top:2px;">Populate 180 days of realistic habit history and immediately open the report or download CSV.</div>
+                    </div>
+                    <div class="banner-actions">
+                        <button class="btn-white" onclick="generateSixMonthsHistory(false)">⚡ Generate 6M Logs</button>
+                        <button class="btn-white alt" onclick="generateSixMonthsHistory(true)">📥 Generate & Export 6M CSV</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">📊 Google Sheets Export Center</div>
+                            <div class="card-subtitle">Extract 1-Month, 6-Month, 1-Year, or Custom data</div>
+                        </div>
+                    </div>
+
+                    <div class="period-grid">
+                        <button id="pbtn-month" class="period-btn active" onclick="setExportPeriod('month')">Current Month (1M)</button>
+                        <button id="pbtn-6months" class="period-btn" onclick="setExportPeriod('6months')">Last 6 Months (6M)</button>
+                        <button id="pbtn-year" class="period-btn" onclick="setExportPeriod('year')">Full Year (12M)</button>
+                        <button id="pbtn-custom" class="period-btn" onclick="setExportPeriod('custom')">Custom Range</button>
+                    </div>
+
+                    <div id="custom-range-box" class="date-inputs hidden">
+                        <div>
+                            <label style="font-size:10px; font-weight:700; color:var(--text-sub); display:block; margin-bottom:4px;">START DATE</label>
+                            <input type="date" id="exp-start" class="input-box" onchange="renderSheetsView()">
+                        </div>
+                        <div>
+                            <label style="font-size:10px; font-weight:700; color:var(--text-sub); display:block; margin-bottom:4px;">END DATE</label>
+                            <input type="date" id="exp-end" class="input-box" onchange="renderSheetsView()">
+                        </div>
+                    </div>
+
+                    <div class="month-kpi-grid" style="margin-bottom:8px;">
+                        <div class="month-stat-card">
+                            <div id="exp-kpi-days" class="month-stat-val">0</div>
+                            <div class="month-stat-lbl">Days in Range</div>
+                        </div>
+                        <div class="month-stat-card">
+                            <div id="exp-kpi-logs" class="month-stat-val" style="color:var(--emerald);">0</div>
+                            <div class="month-stat-lbl">Check-ins</div>
+                        </div>
+                        <div class="month-stat-card">
+                            <div id="exp-kpi-rate" class="month-stat-val" style="color:var(--brand-light);">0%</div>
+                            <div class="month-stat-lbl">Consistency</div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                        <span style="font-size:11px; font-weight:700; color:var(--text-sub);">Live Sheet Preview (Scrollable):</span>
+                        <span id="preview-row-counter" style="font-size:10px; font-weight:700; color:var(--brand-light);">0 rows</span>
+                    </div>
+                    <div class="preview-scroll">
+                        <table id="sheet-preview-table" class="preview-table"></table>
+                    </div>
+
+                    <button class="btn-primary" onclick="downloadCSVForSheets()">
+                        ⬇️ Download / Open CSV Export Drawer (.csv)
+                    </button>
+                    <button class="btn-secondary" onclick="copyTSVForSheets()">
+                        📋 1-Click Copy for Google Sheets (TSV)
+                    </button>
+                    <p style="font-size:11px; color:var(--text-sub); text-align:center; margin-top:8px;">
+                        Sandboxed Preview Note: Clicking <b>Download CSV</b> triggers a file download AND opens the <b>Sandbox-Safe Export Drawer</b> so you can always save or copy your report.
+                    </p>
+                </div>
+
+                <!-- Collapsible Google Apps Script Webhook Guide -->
+                <div class="card">
+                    <div class="card-header" style="margin-bottom:6px;">
+                        <div>
+                            <div class="card-title">☁️ Google Apps Script Webhook Sync</div>
+                            <div class="card-subtitle">Automate direct pushes into a live Google Sheet</div>
+                        </div>
+                        <button onclick="toggleWebhookGuide()" style="font-size:11px; font-weight:800; color:var(--brand-light);">Setup Guide ▾</button>
+                    </div>
+
+                    <div style="display:flex; gap:8px; margin-top:8px;">
+                        <input id="webhook-url" type="url" class="input-box" placeholder="https://script.google.com/macros/s/.../exec">
+                        <button onclick="pushToWebhook()" style="padding:0 14px; border-radius:11px; background:var(--brand); color:#fff; font-size:12px; font-weight:800; white-space:nowrap;">Sync</button>
+                    </div>
+
+                    <div id="webhook-guide-box" class="hidden" style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border-color); font-size:11px; color:var(--text-sub);">
+                        <p>1. Open your Google Sheet and click <b>Extensions → Apps Script</b>.</p>
+                        <p style="margin-top:4px;">2. Paste the script below, click <b>Deploy → New deployment → Web app</b> (Access: <i>Anyone</i>), and paste the URL above:</p>
+                        <pre id="apps-script-snippet" class="code-snippet">function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  sheet.clear();
+  data.rows.forEach(function(row) { sheet.appendRow(row); });
+  return ContentService.createTextOutput("OK");
+}</pre>
+                    </div>
+                </div>
+
+                <!-- FREE APK & FAMILY SHARING GUIDE (NO $25 PLAY STORE FEE) -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">📲 Free APK & Family Sharing Guide</div>
+                            <div class="card-subtitle">Share with friends & family for $0 (No Play Store fee)</div>
+                        </div>
+                        <span class="badge-pill">100% Free</span>
+                    </div>
+
+                    <div style="font-size:11px; font-weight:800; color:var(--brand-light); text-transform:uppercase; margin-bottom:8px;">
+                        Option A: Create a Direct-Install Android APK (Share via WhatsApp / Drive)
+                    </div>
+                    <div class="play-step">
+                        <span class="step-badge">1</span>
+                        <div><b>Host `index.html` on a Free HTTPS Link:</b> Drag and drop this file onto <b>Netlify Drop</b> (<code>app.netlify.com/drop</code>), <b>GitHub Pages</b>, or <b>Vercel</b> to get a free URL like <code>https://habitpulse-family.netlify.app</code>.</div>
+                    </div>
+                    <div class="play-step">
+                        <span class="step-badge">2</span>
+                        <div><b>Generate the Free `.apk` File:</b> Go to <b>PWABuilder.com</b> (or <b>WebIntoApp.com</b>), paste your URL, click <b>Package for Store → Android</b>, and download the included <b>`.apk`</b> file (used for direct testing/sideloading without the Play Store).</div>
+                    </div>
+                    <div class="play-step">
+                        <span class="step-badge">3</span>
+                        <div><b>Share & Log In:</b> Send the `.apk` file on <b>WhatsApp</b>, <b>Telegram</b>, or <b>Google Drive</b>. Family members tap the APK to install ("Install from Unknown Sources"), tap the top-right <b>Login / Sync</b> badge, and sign in with their own email & password to keep their personal habit streaks synced in the cloud!</div>
+                    </div>
+
+                    <div style="font-size:11px; font-weight:800; color:var(--emerald); text-transform:uppercase; margin:12px 0 8px; padding-top:10px; border-top:1px solid var(--border-color);">
+                        Option B: Zero-Warning PWA Install (Android & iPhone)
+                    </div>
+                    <div class="play-step" style="margin-bottom:14px;">
+                        <span class="step-badge" style="background:var(--emerald);">★</span>
+                        <div>Simply send your hosted link to friends on WhatsApp. When they open it in <b>Chrome (Android)</b> or <b>Safari (iOS)</b> and tap <b>Share / Menu → Add to Home Screen</b>, it installs a full-screen app icon with <b>zero security warnings</b> and full cloud login!</div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <button onclick="openAuthModal()" class="period-btn" style="background:rgba(99,102,241,0.16); color:var(--brand-light); border-color:var(--brand);">
+                            🔐 Account & Cloud Sync
+                        </button>
+                        <button onclick="openBackupModal()" class="period-btn" style="background:rgba(16,185,129,0.15); color:var(--emerald); border-color:var(--emerald);">
+                            💾 Backup / Restore JSON
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- FIXED BOTTOM NAVIGATION BAR (4 TABS + ADD BUTTON) -->
+        <nav class="bottom-nav">
+            <button id="nav-today" class="nav-tab active" onclick="switchTab('today')">
+                <span style="font-size:17px;">📅</span>
+                <span>Today</span>
+            </button>
+            <button id="nav-matrix" class="nav-tab" onclick="switchTab('matrix')">
+                <span style="font-size:17px;">🔢</span>
+                <span>Week Grid</span>
+            </button>
+            <div>
+                <button class="fab-add" onclick="openModal()" title="Add New Habit">＋</button>
+            </div>
+            <button id="nav-month" class="nav-tab" onclick="switchTab('month')">
+                <span style="font-size:17px;">🗓️</span>
+                <span>Month</span>
+            </button>
+            <button id="nav-sheets" class="nav-tab" onclick="switchTab('sheets')">
+                <span style="font-size:17px;">📊</span>
+                <span>Sheets</span>
+            </button>
+        </nav>
+
+        <!-- ADD HABIT MODAL -->
+        <div id="add-modal" class="modal-backdrop hidden">
+            <div class="modal-sheet">
+                <div class="card-header">
+                    <div class="card-title">Create New Daily Habit</div>
+                    <button onclick="closeModal()" style="font-size:18px; color:var(--text-sub); padding:4px;">✕</button>
+                </div>
+                <form onsubmit="handleAddHabit(event)" style="display:flex; flex-direction:column; gap:12px;">
+                    <div>
+                        <label style="font-size:11px; font-weight:700; color:var(--text-sub); display:block; margin-bottom:4px;">HABIT NAME</label>
+                        <input id="new-habit-name" type="text" required maxlength="36" placeholder="e.g., Drink 2.5L Water, Read 20 mins" class="input-box">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <div>
+                            <label style="font-size:11px; font-weight:700; color:var(--text-sub); display:block; margin-bottom:4px;">CATEGORY</label>
+                            <select id="new-habit-cat" class="input-box">
+                                <option value="Health">Health</option>
+                                <option value="Fitness">Fitness</option>
+                                <option value="Mind">Mind</option>
+                                <option value="Work">Work</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:11px; font-weight:700; color:var(--text-sub); display:block; margin-bottom:4px;">WEEKLY GOAL</label>
+                            <select id="new-habit-goal" class="input-box">
+                                <option value="7">7 days / week</option>
+                                <option value="5" selected>5 days / week</option>
+                                <option value="3">3 days / week</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size:11px; font-weight:700; color:var(--text-sub); display:block;">CHOOSE EMOJI ICON</label>
+                        <div id="emoji-grid" class="emoji-grid"></div>
+                    </div>
+                    <div style="display:flex; gap:8px; margin-top:6px;">
+                        <button type="button" onclick="closeModal()" style="flex:1; padding:12px; border-radius:12px; background:var(--bg-card); font-weight:700; font-size:13px;">Cancel</button>
+                        <button type="submit" style="flex:2; padding:12px; border-radius:12px; background:var(--brand); color:#fff; font-weight:800; font-size:13px;">Save Habit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- SANDBOX-SAFE CSV / TSV EXPORT DRAWER MODAL -->
+        <div id="export-modal" class="modal-backdrop hidden">
+            <div class="modal-sheet">
+                <div class="card-header" style="margin-bottom:8px;">
+                    <div>
+                        <div id="export-modal-title" class="card-title">📊 Export & Download Sheet</div>
+                        <div id="export-modal-sub" class="card-subtitle">Ready for Google Sheets or Excel</div>
+                    </div>
+                    <button onclick="closeExportModal()" style="font-size:18px; color:var(--text-sub); padding:4px;">✕</button>
+                </div>
+
+                <!-- Direct Clickable Anchor with Data URI -->
+                <a id="direct-csv-anchor" href="#" download="HabitPulse_Report.csv" class="direct-anchor-btn">
+                    ⬇️ Tap Here for Direct File Download (.csv)
+                </a>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                    <button type="button" onclick="copyModalText('tsv')" class="btn-secondary" style="padding:10px; font-size:12px;">
+                        📋 Copy for Sheets (TSV)
+                    </button>
+                    <button type="button" onclick="copyModalText('csv')" class="period-btn" style="color:var(--text-main);">
+                        📄 Copy Raw CSV Text
+                    </button>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label style="font-size:10px; font-weight:700; color:var(--text-sub);">GENERATED DATA (TAP & COPY OR SELECT ALL):</label>
+                    <button type="button" onclick="selectAllExportText()" style="font-size:11px; font-weight:800; color:var(--brand-light);">Select All</button>
+                </div>
+                <textarea id="export-raw-textarea" class="raw-export-area" readonly onclick="this.select()"></textarea>
+                <p style="font-size:10px; color:var(--text-sub); margin-top:6px;">
+                    💡 If your preview browser blocks file downloads, click <b>Copy for Sheets (TSV)</b> above, open <b>sheets.new</b>, and press <b>Ctrl+V</b> (or <b>⌘V</b>) — all columns align automatically!
+                </p>
+            </div>
+        </div>
+
+        <!-- BACKUP / RESTORE JSON & PWA MANIFEST MODAL -->
+        <div id="backup-modal" class="modal-backdrop hidden">
+            <div class="modal-sheet">
+                <div class="card-header" style="margin-bottom:8px;">
+                    <div>
+                        <div id="backup-modal-title" class="card-title">💾 Backup & Restore Data</div>
+                        <div id="backup-modal-sub" class="card-subtitle">Copy JSON to back up or paste to restore</div>
+                    </div>
+                    <button onclick="closeBackupModal()" style="font-size:18px; color:var(--text-sub); padding:4px;">✕</button>
+                </div>
+                <textarea id="backup-json-textarea" class="raw-export-area" style="height:150px;"></textarea>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
+                    <button type="button" onclick="copyBackupJson()" class="btn-secondary" style="padding:11px; font-size:12px;">📋 Copy JSON</button>
+                    <button type="button" id="restore-json-btn" onclick="restoreBackupJson()" class="btn-primary" style="margin-bottom:0; padding:11px; font-size:12px;">🔄 Restore Data</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MULTI-USER LOGIN & CLOUD SYNC MODAL -->
+        <div id="auth-modal" class="modal-backdrop hidden">
+            <div class="modal-sheet">
+                <div class="card-header" style="margin-bottom:10px;">
+                    <div>
+                        <div class="card-title">☁️ Family & Friends Cloud Login</div>
+                        <div class="card-subtitle">Each user gets their own private habit dashboard</div>
+                    </div>
+                    <button onclick="closeAuthModal()" style="font-size:18px; color:var(--text-sub); padding:4px;">✕</button>
+                </div>
+
+                <!-- Current Session Status Box -->
+                <div class="account-card-box">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div id="modal-user-avatar" class="user-avatar" style="width:36px; height:36px; font-size:15px;">👤</div>
+                            <div>
+                                <div id="modal-user-title" style="font-size:13px; font-weight:800;">Guest Profile</div>
+                                <div id="modal-user-sub" style="font-size:11px; color:var(--text-sub);">Data stored on this device</div>
+                            </div>
+                        </div>
+                        <span id="modal-cloud-pill" class="badge-pill">Ready</span>
+                    </div>
+                    <div style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border-color); font-size:10px; color:var(--text-sub); word-break:break-all;">
+                        Account ID: <code id="modal-user-uid" style="color:var(--brand-light); font-weight:700;">guest-local</code>
+                    </div>
+                </div>
+
+                <!-- Login / Create Account Tabs -->
+                <div class="auth-tabs">
+                    <button type="button" id="auth-tab-signin" class="auth-tab-btn active" onclick="setAuthMode('signin')">Sign In</button>
+                    <button type="button" id="auth-tab-signup" class="auth-tab-btn" onclick="setAuthMode('signup')">Create Account</button>
+                </div>
+
+                <form onsubmit="handleCredentialAuth(event)" style="display:flex; flex-direction:column; gap:10px;">
+                    <div id="auth-name-wrap" class="hidden">
+                        <label style="font-size:10px; font-weight:700; color:var(--text-sub); display:block; margin-bottom:3px;">YOUR NAME (FOR FAMILY PROFILE)</label>
+                        <input id="auth-display-name" type="text" maxlength="30" placeholder="e.g., Rahul, Priya, Mom" class="input-box">
+                    </div>
+                    <div>
+                        <label style="font-size:10px; font-weight:700; color:var(--text-sub); display:block; margin-bottom:3px;">EMAIL OR USERNAME</label>
+                        <input id="auth-email" type="email" required placeholder="name@example.com" class="input-box">
+                    </div>
+                    <div>
+                        <label style="font-size:10px; font-weight:700; color:var(--text-sub); display:block; margin-bottom:3px;">PASSWORD / PIN (MIN 6 CHARS)</label>
+                        <input id="auth-password" type="password" required minlength="6" placeholder="••••••" class="input-box">
+                    </div>
+                    <button type="submit" id="auth-submit-btn" class="btn-secondary" style="padding:11px; font-size:13px; margin-top:2px;">
+                        🔐 Sign In & Sync My Habits
+                    </button>
+                </form>
+
+                <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+                    <button type="button" onclick="handleGoogleSignIn()" class="google-btn">
+                        <span>🌐</span> <span>Continue with Google Account</span>
+                    </button>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <button type="button" onclick="forceCloudSyncNow()" class="period-btn" style="font-size:11px; color:var(--emerald); border-color:var(--emerald);">
+                            ☁️ Sync Now
+                        </button>
+                        <button type="button" onclick="signOutToGuest()" class="period-btn" style="font-size:11px; color:var(--rose); border-color:rgba(244,63,94,0.35);">
+                            🚪 Switch / Guest Mode
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            /* =========================================================
+             * EMBEDDED PWA MANIFEST (Makes app installable on Android/iOS)
+             * ========================================================= */
+            try {
+                var pwaManifest = {
+                    name: "HabitPulse - Daily Goal & Streak Tracker",
+                    short_name: "HabitPulse",
+                    description: "Track daily goals, weekly streaks, monthly heatmaps, and export to Google Sheets.",
+                    start_url: "./index.html",
+                    display: "standalone",
+                    background_color: "#0f172a",
+                    theme_color: "#4f46e5",
+                    orientation: "portrait",
+                    icons: [
+                        {
+                            src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='42' fill='%234f46e5'/><text x='96' y='128' font-size='105' text-anchor='middle'>⚡</text></svg>",
+                            sizes: "192x192",
+                            type: "image/svg+xml",
+                            purpose: "any maskable"
+                        },
+                        {
+                            src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='110' fill='%234f46e5'/><text x='256' y='340' font-size='280' text-anchor='middle'>⚡</text></svg>",
+                            sizes: "512x512",
+                            type: "image/svg+xml",
+                            purpose: "any maskable"
+                        }
+                    ]
+                };
+                var manifestLink = document.getElementById('pwa-manifest-link');
+                if (manifestLink) {
+                    manifestLink.setAttribute('href', 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(pwaManifest)));
+                }
+            } catch (e) {}
+
+            /* =========================================================
+             * SAFE STORAGE WRAPPER (Never crashes in sandboxed iframes)
+             * ========================================================= */
+            var memoryStore = {};
+            var STORAGE_KEY = 'habitpulse_standalone_v2';
+
+            function safeGetStorage() {
+                try {
+                    if (window.localStorage) {
+                        var raw = window.localStorage.getItem(STORAGE_KEY);
+                        if (raw) return JSON.parse(raw);
+                    }
+                } catch (e) {}
+                return memoryStore[STORAGE_KEY] || null;
+            }
+
+            function safeSetStorage(data) {
+                memoryStore[STORAGE_KEY] = data;
+                try {
+                    if (window.localStorage) {
+                        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                    }
+                } catch (e) {}
+            }
+
+            /* =========================================================
+             * DATE HELPERS
+             * ========================================================= */
+            function toDateKey(d) {
+                var yr = d.getFullYear();
+                var mo = String(d.getMonth() + 1).padStart(2, '0');
+                var da = String(d.getDate()).padStart(2, '0');
+                return yr + '-' + mo + '-' + da;
+            }
+
+            function addDays(d, days) {
+                var copy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                copy.setDate(copy.getDate() + days);
+                return copy;
+            }
+
+            function getMonday(d) {
+                var copy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                var day = copy.getDay();
+                var diff = copy.getDate() - day + (day === 0 ? -6 : 1);
+                copy.setDate(diff);
+                return copy;
+            }
+
+            var todayDate = new Date();
+            todayDate.setHours(0, 0, 0, 0);
+            var todayKey = toDateKey(todayDate);
+
+            var EMOJIS = ['💧', '🏃', '📖', '🧘', '💻', '🥗', '🏋️', '😴', '🎸', '🍵', '🧠', '🚶', '✍️', '☀️'];
+
+            var state = {
+                selectedDateKey: todayKey,
+                weekOffset: 0,
+                monthOffset: 0,
+                activeTab: 'today',
+                category: 'All',
+                exportPeriod: 'month',
+                pickedEmoji: '💧',
+                habits: []
+            };
+
+            /* =========================================================
+             * INITIAL 5 REALISTIC HABITS + 21 DAYS SAMPLE DATA
+             * ========================================================= */
+            function createSeedHabits() {
+                function buildHistory(activeOffsets) {
+                    var hist = {};
+                    for (var i = -28; i <= -15; i++) {
+                        if ((Math.abs(i) % 2) === 0) {
+                            hist[toDateKey(addDays(todayDate, i))] = true;
+                        }
+                    }
+                    for (var j = 0; j < activeOffsets.length; j++) {
+                        hist[toDateKey(addDays(todayDate, activeOffsets[j]))] = true;
+                    }
+                    return hist;
+                }
+
+                return [
+                    {
+                        id: 'h1',
+                        name: 'Hydrate 2.5L Water',
+                        category: 'Health',
+                        emoji: '💧',
+                        weeklyGoal: 7,
+                        history: buildHistory([-14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0])
+                    },
+                    {
+                        id: 'h2',
+                        name: '30m Morning Run / Walk',
+                        category: 'Fitness',
+                        emoji: '🏃',
+                        weeklyGoal: 5,
+                        history: buildHistory([-14, -12, -11, -9, -8, -6, -5, -4, -2, -1, 0])
+                    },
+                    {
+                        id: 'h3',
+                        name: 'Read 20 Pages',
+                        category: 'Mind',
+                        emoji: '📖',
+                        weeklyGoal: 5,
+                        history: buildHistory([-13, -12, -10, -9, -7, -6, -5, -3, -2, -1])
+                    },
+                    {
+                        id: 'h4',
+                        name: 'Deep Work (No Socials)',
+                        category: 'Work',
+                        emoji: '💻',
+                        weeklyGoal: 5,
+                        history: buildHistory([-14, -13, -11, -10, -8, -7, -4, -3, -2, -1, 0])
+                    },
+                    {
+                        id: 'h5',
+                        name: '10m Mindfulness',
+                        category: 'Mind',
+                        emoji: '🧘',
+                        weeklyGoal: 7,
+                        history: buildHistory([-12, -11, -9, -7, -6, -4, -3, -1])
+                    }
+                ];
+            }
+
+            function initState() {
+                var saved = safeGetStorage();
+                if (saved && Array.isArray(saved.habits) && saved.habits.length > 0) {
+                    state.habits = saved.habits;
+                } else {
+                    state.habits = createSeedHabits();
+                    safeSetStorage({ habits: state.habits });
+                }
+            }
+
+            function saveHabits() {
+                safeSetStorage({ habits: state.habits });
+                if (typeof window.__syncHabitsToCloud === 'function') {
+                    window.__syncHabitsToCloud(state.habits);
+                }
+            }
+
+            /* =========================================================
+             * MULTI-USER AUTH & CLOUD BRIDGE HOOKS
+             * ========================================================= */
+            var currentProfile = {
+                id: 'guest-local',
+                name: 'Guest',
+                email: '',
+                isCloud: false,
+                mode: 'signin'
+            };
+
+            function updateAuthUI() {
+                var avatarEl = document.getElementById('header-user-avatar');
+                var nameEl = document.getElementById('header-user-name');
+                var badgeEl = document.getElementById('header-sync-badge');
+
+                var initials = currentProfile.name
+                    ? currentProfile.name.trim().charAt(0).toUpperCase()
+                    : '👤';
+
+                if (avatarEl) avatarEl.textContent = initials;
+                if (nameEl) nameEl.textContent = currentProfile.name || 'Guest';
+                if (badgeEl) {
+                    if (currentProfile.isCloud) {
+                        badgeEl.textContent = '☁️ Cloud Synced';
+                        badgeEl.className = 'sync-status-txt';
+                    } else {
+                        badgeEl.textContent = '📱 Local Mode';
+                        badgeEl.className = 'sync-status-txt local';
+                    }
+                }
+
+                // Update modal fields
+                var mAvatar = document.getElementById('modal-user-avatar');
+                var mTitle = document.getElementById('modal-user-title');
+                var mSub = document.getElementById('modal-user-sub');
+                var mUid = document.getElementById('modal-user-uid');
+                var mPill = document.getElementById('modal-cloud-pill');
+
+                if (mAvatar) mAvatar.textContent = initials;
+                if (mTitle) mTitle.textContent = currentProfile.name + (currentProfile.email ? ' (' + currentProfile.email + ')' : '');
+                if (mSub) {
+                    mSub.textContent = currentProfile.isCloud
+                        ? 'Real-time Cloud Firestore Sync Active'
+                        : 'Saved locally on device & ready for cloud sync';
+                }
+                if (mUid) mUid.textContent = currentProfile.id;
+                if (mPill) {
+                    mPill.textContent = currentProfile.isCloud ? '☁️ Cloud Active' : '📱 Device Ready';
+                }
+            }
+
+            window.__applyUserHabitsFromCloud = function (profileInfo, habitsArray) {
+                if (profileInfo) {
+                    currentProfile.id = profileInfo.id || currentProfile.id;
+                    currentProfile.name = profileInfo.name || currentProfile.name;
+                    currentProfile.email = profileInfo.email || currentProfile.email;
+                    currentProfile.isCloud = !!profileInfo.isCloud;
+                }
+                if (Array.isArray(habitsArray) && habitsArray.length > 0) {
+                    state.habits = habitsArray;
+                    safeSetStorage({ habits: state.habits });
+                }
+                updateAuthUI();
+                renderAll();
+            };
+
+            window.__getCurrentHabitsSnapshot = function () {
+                return state.habits;
+            };
+
+            window.__notifyToast = function (msg) {
+                showToast(msg);
+            };
+
+            window.openAuthModal = function () {
+                updateAuthUI();
+                document.getElementById('auth-modal').classList.remove('hidden');
+            };
+
+            window.closeAuthModal = function () {
+                document.getElementById('auth-modal').classList.add('hidden');
+            };
+
+            window.setAuthMode = function (mode) {
+                currentProfile.mode = mode;
+                var signInBtn = document.getElementById('auth-tab-signin');
+                var signUpBtn = document.getElementById('auth-tab-signup');
+                var nameWrap = document.getElementById('auth-name-wrap');
+                var submitBtn = document.getElementById('auth-submit-btn');
+
+                if (mode === 'signup') {
+                    signUpBtn.classList.add('active');
+                    signInBtn.classList.remove('active');
+                    nameWrap.classList.remove('hidden');
+                    submitBtn.textContent = '✨ Create My Account & Sync';
+                } else {
+                    signInBtn.classList.add('active');
+                    signUpBtn.classList.remove('active');
+                    nameWrap.classList.add('hidden');
+                    submitBtn.textContent = '🔐 Sign In & Load My Habits';
+                }
+            };
+
+            window.handleCredentialAuth = function (e) {
+                e.preventDefault();
+                var email = document.getElementById('auth-email').value.trim().toLowerCase();
+                var password = document.getElementById('auth-password').value;
+                var displayName = document.getElementById('auth-display-name').value.trim();
+
+                if (!email || !password) return;
+                if (typeof window.__performCredentialLogin === 'function') {
+                    window.__performCredentialLogin(currentProfile.mode, email, password, displayName);
+                } else {
+                    showToast('Initializing cloud connection...');
+                }
+            };
+
+            window.handleGoogleSignIn = function () {
+                if (typeof window.__performGoogleLogin === 'function') {
+                    window.__performGoogleLogin();
+                } else {
+                    showToast('Use Email & Password to sign in on this device');
+                }
+            };
+
+            window.forceCloudSyncNow = function () {
+                if (typeof window.__syncHabitsToCloud === 'function') {
+                    window.__syncHabitsToCloud(state.habits, true);
+                } else {
+                    showToast('Saved locally!');
+                }
+            };
+
+            window.signOutToGuest = function () {
+                if (typeof window.__performSignOutToGuest === 'function') {
+                    window.__performSignOutToGuest();
+                }
+            };
+
+            /* =========================================================
+             * STREAK CALCULATIONS
+             * ========================================================= */
+            function getActiveStreak(habit) {
+                var count = 0;
+                var cursor = new Date(todayDate);
+                if (!habit.history[toDateKey(cursor)]) {
+                    cursor = addDays(cursor, -1);
+                }
+                while (habit.history[toDateKey(cursor)]) {
+                    count++;
+                    cursor = addDays(cursor, -1);
+                }
+                return count;
+            }
+
+            function getBestStreak(habit) {
+                var keys = Object.keys(habit.history).filter(function (k) { return habit.history[k]; }).sort();
+                if (keys.length === 0) return 0;
+                var best = 1;
+                var curr = 1;
+                for (var i = 1; i < keys.length; i++) {
+                    var prevDate = new Date(keys[i - 1] + 'T00:00:00');
+                    var currDate = new Date(keys[i] + 'T00:00:00');
+                    var diffDays = Math.round((currDate - prevDate) / 86400000);
+                    if (diffDays === 1) {
+                        curr++;
+                        if (curr > best) best = curr;
+                    } else if (diffDays > 1) {
+                        curr = 1;
+                    }
+                }
+                return Math.max(best, getActiveStreak(habit));
+            }
+
+            function getWeekDates() {
+                var monday = getMonday(addDays(todayDate, state.weekOffset * 7));
+                var arr = [];
+                for (var i = 0; i < 7; i++) {
+                    arr.push(addDays(monday, i));
+                }
+                return arr;
+            }
+
+            /* =========================================================
+             * RENDER FUNCTIONS
+             * ========================================================= */
+            function renderHeader() {
+                var selDate = new Date(state.selectedDateKey + 'T00:00:00');
+                var isToday = state.selectedDateKey === todayKey;
+                var dateLabel = selDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                document.getElementById('header-date-str').textContent = isToday ? ('TODAY • ' + dateLabel) : dateLabel;
+
+                var weekDates = getWeekDates();
+                var rangeLbl = state.weekOffset === 0
+                    ? 'This Week'
+                    : (weekDates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' – ' +
+                       weekDates[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                document.getElementById('week-range-lbl').textContent = rangeLbl;
+                document.getElementById('next-week-btn').disabled = state.weekOffset >= 0;
+
+                var dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                var stripHtml = '';
+                var totalHabits = state.habits.length;
+
+                for (var i = 0; i < 7; i++) {
+                    var d = weekDates[i];
+                    var key = toDateKey(d);
+                    var isFut = d > todayDate;
+                    var doneCount = 0;
+                    for (var h = 0; h < totalHabits; h++) {
+                        if (state.habits[h].history[key]) doneCount++;
+                    }
+                    var dotClass = 'day-dot';
+                    if (totalHabits > 0 && doneCount === totalHabits) dotClass += ' done';
+                    else if (doneCount > 0) dotClass += ' partial';
+
+                    var btnClass = 'day-pill';
+                    if (key === state.selectedDateKey) btnClass += ' selected';
+                    else if (key === todayKey) btnClass += ' today';
+
+                    stripHtml += '<button class="' + btnClass + '" ' + (isFut ? 'disabled' : 'onclick="selectDate(\'' + key + '\')"') + '>' +
+                        '<span class="day-name">' + dayNames[i] + '</span>' +
+                        '<span class="day-num">' + d.getDate() + '</span>' +
+                        '<span class="' + dotClass + '"></span>' +
+                        '</button>';
+                }
+                document.getElementById('week-strip').innerHTML = stripHtml;
+            }
+
+            function renderTodayTab() {
+                var total = state.habits.length;
+                var doneToday = 0;
+                for (var i = 0; i < total; i++) {
+                    if (state.habits[i].history[state.selectedDateKey]) doneToday++;
+                }
+                var pct = total > 0 ? Math.round((doneToday / total) * 100) : 0;
+
+                // Circular Ring (r=30 => circumference = 188.5)
+                var circum = 188.5;
+                var offset = circum - (pct / 100) * circum;
+                document.getElementById('progress-ring-circle').style.strokeDashoffset = String(offset);
+                document.getElementById('progress-ring-pct').textContent = pct + '%';
+
+                var selObj = new Date(state.selectedDateKey + 'T00:00:00');
+                document.getElementById('hero-day-badge').textContent = (state.selectedDateKey === todayKey)
+                    ? "Today's Progress"
+                    : selObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+                var titleText = 'Ready to build streaks?';
+                if (total === 0) titleText = 'Add your first habit!';
+                else if (pct === 100) titleText = 'All goals crushed! 🎉';
+                else if (pct >= 50) titleText = 'Great momentum today!';
+                else if (pct > 0) titleText = 'Off to a solid start!';
+                document.getElementById('hero-status-title').textContent = titleText;
+                document.getElementById('hero-status-sub').textContent = doneToday + ' of ' + total + ' daily goals completed';
+
+                // Top Streak KPI
+                var bestStreak = 0;
+                for (var s = 0; s < total; s++) {
+                    var st = getActiveStreak(state.habits[s]);
+                    if (st > bestStreak) bestStreak = st;
+                }
+                document.getElementById('kpi-top-streak').textContent = '🔥 ' + bestStreak + 'd';
+
+                // Weekly Bar Chart & KPIs
+                var weekDates = getWeekDates();
+                var weekShort = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+                var weekDoneTotal = 0;
+                var weekPossible = 0;
+                var perfectDays = 0;
+                var chartHtml = '';
+
+                for (var w = 0; w < 7; w++) {
+                    var wd = weekDates[w];
+                    var wKey = toDateKey(wd);
+                    var isFut = wd > todayDate;
+                    var dCount = 0;
+                    for (var hh = 0; hh < total; hh++) {
+                        if (state.habits[hh].history[wKey]) dCount++;
+                    }
+                    if (!isFut) {
+                        weekDoneTotal += dCount;
+                        weekPossible += total;
+                        if (total > 0 && dCount === total) perfectDays++;
+                    }
+                    var barPct = (!isFut && total > 0) ? Math.round((dCount / total) * 100) : 0;
+                    var heightPct = isFut ? 8 : Math.max(barPct, 10);
+                    var fillClass = 'bar-fill';
+                    if (isFut || dCount === 0) fillClass += ' empty';
+                    else if (barPct === 100) fillClass += ' perfect';
+
+                    var colClass = 'bar-col' + (wKey === state.selectedDateKey ? ' active' : '');
+                    chartHtml += '<div class="' + colClass + '" ' + (isFut ? '' : 'onclick="selectDate(\'' + wKey + '\')"') + '>' +
+                        '<span class="bar-ratio">' + (isFut ? '-' : (dCount + '/' + total)) + '</span>' +
+                        '<div class="bar-track"><div class="' + fillClass + '" style="height:' + heightPct + '%"></div></div>' +
+                        '<span class="bar-day">' + weekShort[w] + '</span>' +
+                        '</div>';
+                }
+
+                document.getElementById('weekly-bar-chart').innerHTML = chartHtml;
+                document.getElementById('perfect-days-pill').textContent = perfectDays + (perfectDays === 1 ? ' Perfect Day' : ' Perfect Days');
+                document.getElementById('kpi-week-done').textContent = '✅ ' + weekDoneTotal;
+                var weekRate = weekPossible > 0 ? Math.round((weekDoneTotal / weekPossible) * 100) : 0;
+                document.getElementById('kpi-week-rate').textContent = '📈 ' + weekRate + '%';
+
+                // Render Habits List
+                var filtered = state.habits.filter(function (item) {
+                    return state.category === 'All' || item.category === state.category;
+                });
+
+                var listEl = document.getElementById('habits-checklist');
+                if (filtered.length === 0) {
+                    listEl.innerHTML = '<div class="card" style="text-align:center; color:var(--text-sub);">No habits in this category yet. Tap <b>+ Add Goal</b> to create one!</div>';
+                    return;
+                }
+
+                var listHtml = '';
+                for (var idx = 0; idx < filtered.length; idx++) {
+                    var hab = filtered[idx];
+                    var isDone = !!hab.history[state.selectedDateKey];
+                    var streak = getActiveStreak(hab);
+                    var wkCount = 0;
+                    var dotsHtml = '';
+                    for (var dIdx = 0; dIdx < 7; dIdx++) {
+                        var dk = toDateKey(weekDates[dIdx]);
+                        var on = !!hab.history[dk];
+                        if (on) wkCount++;
+                        dotsHtml += '<span class="mini-dot' + (on ? ' on' : '') + '"></span>';
+                    }
+
+                    listHtml += '<div class="habit-item' + (isDone ? ' completed' : '') + '">' +
+                        '<div class="habit-left" onclick="toggleHabit(\'' + hab.id + '\')">' +
+                            '<div class="habit-icon">' + hab.emoji + '</div>' +
+                            '<div class="habit-info">' +
+                                '<div class="habit-name">' + escapeHtml(hab.name) + '</div>' +
+                                '<div class="habit-meta">' +
+                                    '<span class="streak-tag">🔥 ' + streak + 'd streak</span>' +
+                                    '<span>• ' + wkCount + '/' + hab.weeklyGoal + ' wk</span>' +
+                                    '<span>• ' + hab.category + '</span>' +
+                                '</div>' +
+                                '<div class="mini-dots">' + dotsHtml + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="habit-actions">' +
+                            '<button class="del-btn" onclick="deleteHabit(\'' + hab.id + '\')" title="Delete Habit">🗑️</button>' +
+                            '<button class="check-btn' + (isDone ? ' done' : '') + '" onclick="toggleHabit(\'' + hab.id + '\')">' + (isDone ? '✓' : '') + '</button>' +
+                        '</div>' +
+                    '</div>';
+                }
+                listEl.innerHTML = listHtml;
+            }
+
+            function renderMatrixTab() {
+                var weekDates = getWeekDates();
+                var dayShort = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+                var headHtml = '<th class="matrix-habit-cell">Habit</th>';
+                for (var i = 0; i < 7; i++) {
+                    headHtml += '<th>' + dayShort[i] + '<br><span style="font-size:9px; opacity:0.75;">' + weekDates[i].getDate() + '</span></th>';
+                }
+                document.getElementById('matrix-head-row').innerHTML = headHtml;
+
+                var bodyHtml = '';
+                for (var h = 0; h < state.habits.length; h++) {
+                    var hab = state.habits[h];
+                    bodyHtml += '<tr><td class="matrix-habit-cell"><div style="font-size:12px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + hab.emoji + ' ' + escapeHtml(hab.name) + '</div></td>';
+                    for (var d = 0; d < 7; d++) {
+                        var wd = weekDates[d];
+                        var key = toDateKey(wd);
+                        var isFut = wd > todayDate;
+                        var done = !!hab.history[key];
+                        bodyHtml += '<td><button class="matrix-toggle' + (done ? ' done' : '') + '" ' +
+                            (isFut ? 'disabled' : 'onclick="toggleHabit(\'' + hab.id + '\', \'' + key + '\')"') + '>' +
+                            (done ? '✓' : '') + '</button></td>';
+                    }
+                    bodyHtml += '</tr>';
+                }
+                document.getElementById('matrix-body-rows').innerHTML = bodyHtml;
+
+                // Leaderboard sorted by active streak
+                var sorted = state.habits.slice().sort(function (a, b) {
+                    return getActiveStreak(b) - getActiveStreak(a);
+                });
+                var lbHtml = '';
+                for (var j = 0; j < sorted.length; j++) {
+                    var item = sorted[j];
+                    var cur = getActiveStreak(item);
+                    var best = getBestStreak(item);
+                    lbHtml += '<div class="habit-item">' +
+                        '<div class="habit-left" style="cursor:default;">' +
+                            '<div class="habit-icon">' + item.emoji + '</div>' +
+                            '<div class="habit-info">' +
+                                '<div class="habit-name">' + escapeHtml(item.name) + '</div>' +
+                                '<div class="habit-meta">Best Streak: <b>' + best + ' days</b></div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<span class="badge-pill" style="background:rgba(245,158,11,0.16); color:var(--amber);">🔥 ' + cur + 'd active</span>' +
+                    '</div>';
+                }
+                document.getElementById('leaderboard-list').innerHTML = lbHtml;
+            }
+
+            function renderMonthTab() {
+                var firstOfMonth = new Date(todayDate.getFullYear(), todayDate.getMonth() + state.monthOffset, 1);
+                var yr = firstOfMonth.getFullYear();
+                var mo = firstOfMonth.getMonth();
+                var daysInMonth = new Date(yr, mo + 1, 0).getDate();
+
+                document.getElementById('month-title').textContent = firstOfMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                document.getElementById('next-month-btn').disabled = state.monthOffset >= 0;
+
+                var startDay = firstOfMonth.getDay();
+                var emptySlots = startDay === 0 ? 6 : startDay - 1;
+                var totalHabits = state.habits.length;
+
+                var totalLogs = 0;
+                var possibleLogs = 0;
+                var perfectDays = 0;
+                var elapsedDays = 0;
+
+                var calHtml = '';
+                for (var e = 0; e < emptySlots; e++) {
+                    calHtml += '<div></div>';
+                }
+
+                for (var day = 1; day <= daysInMonth; day++) {
+                    var cellDate = new Date(yr, mo, day);
+                    var key = toDateKey(cellDate);
+                    var isFut = cellDate > todayDate;
+                    var doneCount = 0;
+                    for (var h = 0; h < totalHabits; h++) {
+                        if (state.habits[h].history[key]) doneCount++;
+                    }
+                    var pct = (!isFut && totalHabits > 0) ? Math.round((doneCount / totalHabits) * 100) : 0;
+
+                    if (!isFut) {
+                        elapsedDays++;
+                        totalLogs += doneCount;
+                        possibleLogs += totalHabits;
+                        if (totalHabits > 0 && doneCount === totalHabits) perfectDays++;
+                    }
+
+                    var cellCls = 'cal-cell';
+                    if (!isFut) {
+                        if (pct === 100 && totalHabits > 0) cellCls += ' lvl-4';
+                        else if (pct >= 70) cellCls += ' lvl-3';
+                        else if (pct >= 40) cellCls += ' lvl-2';
+                        else if (pct > 0) cellCls += ' lvl-1';
+                    }
+                    if (key === state.selectedDateKey) cellCls += ' selected';
+
+                    calHtml += '<button class="' + cellCls + '" ' + (isFut ? 'disabled' : 'onclick="selectDate(\'' + key + '\')"') + '>' +
+                        '<span>' + day + '</span>' +
+                        (!isFut && doneCount > 0 ? '<span class="sub-ratio">' + doneCount + '/' + totalHabits + '</span>' : '') +
+                        '</button>';
+                }
+                document.getElementById('month-cal-grid').innerHTML = calHtml;
+
+                var mRate = possibleLogs > 0 ? Math.round((totalLogs / possibleLogs) * 100) : 0;
+                document.getElementById('month-sub').textContent = mRate + '% Consistency across ' + elapsedDays + ' active days';
+                document.getElementById('m-kpi-logs').textContent = String(totalLogs);
+                document.getElementById('m-kpi-perfect').textContent = String(perfectDays);
+                document.getElementById('m-kpi-rate').textContent = mRate + '%';
+
+                // Day Inspector
+                var selObj = new Date(state.selectedDateKey + 'T00:00:00');
+                document.getElementById('inspector-date-lbl').textContent = selObj.toLocaleDateString('en-US', {
+                    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+                });
+                var selDone = 0;
+                var chipsHtml = '';
+                for (var c = 0; c < totalHabits; c++) {
+                    var habItem = state.habits[c];
+                    var isOn = !!habItem.history[state.selectedDateKey];
+                    if (isOn) selDone++;
+                    chipsHtml += '<button class="inspector-chip' + (isOn ? ' done' : '') + '" onclick="toggleHabit(\'' + habItem.id + '\', \'' + state.selectedDateKey + '\')">' +
+                        '<span>' + habItem.emoji + '</span>' +
+                        '<span>' + escapeHtml(habItem.name) + '</span>' +
+                        (isOn ? '<span>✓</span>' : '') +
+                        '</button>';
+                }
+                document.getElementById('inspector-count-badge').textContent = selDone + '/' + totalHabits + ' Done';
+                document.getElementById('inspector-chips').innerHTML = chipsHtml;
+
+                // Per-Habit Monthly Consistency Bars
+                var denom = Math.max(1, elapsedDays);
+                var barsHtml = '';
+                for (var b = 0; b < totalHabits; b++) {
+                    var hb = state.habits[b];
+                    var mCount = 0;
+                    for (var dNum = 1; dNum <= daysInMonth; dNum++) {
+                        var cd = new Date(yr, mo, dNum);
+                        if (cd <= todayDate && hb.history[toDateKey(cd)]) mCount++;
+                    }
+                    var hPct = elapsedDays > 0 ? Math.round((mCount / denom) * 100) : 0;
+                    barsHtml += '<div class="progress-row">' +
+                        '<div class="progress-top">' +
+                            '<span>' + hb.emoji + ' ' + escapeHtml(hb.name) + ' <span style="font-weight:500; color:var(--text-sub);">(' + mCount + '/' + elapsedDays + 'd)</span></span>' +
+                            '<span style="color:var(--brand-light);">' + hPct + '%</span>' +
+                        '</div>' +
+                        '<div class="progress-track"><div class="progress-fill" style="width:' + hPct + '%"></div></div>' +
+                    '</div>';
+                }
+                document.getElementById('month-habit-bars').innerHTML = barsHtml;
+            }
+
+            /* =========================================================
+             * GOOGLE SHEETS EXPORT DATASET & RENDER
+             * ========================================================= */
+            function getExportBounds() {
+                var start = new Date(todayDate);
+                var end = new Date(todayDate);
+                if (state.exportPeriod === 'month') {
+                    start = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+                } else if (state.exportPeriod === '6months') {
+                    start = addDays(todayDate, -179);
+                } else if (state.exportPeriod === 'year') {
+                    start = addDays(todayDate, -364);
+                } else if (state.exportPeriod === 'custom') {
+                    var sVal = document.getElementById('exp-start').value;
+                    var eVal = document.getElementById('exp-end').value;
+                    if (sVal) start = new Date(sVal + 'T00:00:00');
+                    if (eVal) end = new Date(eVal + 'T00:00:00');
+                    if (start > end) {
+                        var tmp = start;
+                        start = end;
+                        end = tmp;
+                    }
+                }
+                return { start: start, end: end };
+            }
+
+            function buildExportDataset() {
+                var bounds = getExportBounds();
+                var dates = [];
+                var cur = new Date(bounds.start);
+                while (cur <= bounds.end) {
+                    dates.push(new Date(cur));
+                    cur = addDays(cur, 1);
+                }
+
+                var habits = state.habits;
+                var header = ['Date', 'Day'];
+                for (var h = 0; h < habits.length; h++) {
+                    header.push(habits[h].emoji + ' ' + habits[h].name);
+                }
+                header.push('Completed', 'Total Habits', 'Completion %');
+
+                var rows = [];
+                var totalLogs = 0;
+                for (var i = dates.length - 1; i >= 0; i--) {
+                    var d = dates[i];
+                    var key = toDateKey(d);
+                    var dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+                    var row = [key, dayName];
+                    var dayDone = 0;
+                    for (var j = 0; j < habits.length; j++) {
+                        var ok = !!habits[j].history[key];
+                        if (ok) {
+                            dayDone++;
+                            totalLogs++;
+                        }
+                        row.push(ok ? 1 : 0);
+                    }
+                    var pct = habits.length > 0 ? Math.round((dayDone / habits.length) * 100) : 0;
+                    row.push(dayDone, habits.length, pct + '%');
+                    rows.push(row);
+                }
+
+                var possible = dates.length * habits.length;
+                var rate = possible > 0 ? Math.round((totalLogs / possible) * 100) : 0;
+
+                return {
+                    startKey: toDateKey(bounds.start),
+                    endKey: toDateKey(bounds.end),
+                    daysCount: dates.length,
+                    totalLogs: totalLogs,
+                    rate: rate,
+                    header: header,
+                    rows: rows
+                };
+            }
+
+            function renderSheetsView() {
+                var pIds = ['month', '6months', 'year', 'custom'];
+                for (var i = 0; i < pIds.length; i++) {
+                    var btn = document.getElementById('pbtn-' + pIds[i]);
+                    if (btn) {
+                        btn.className = 'period-btn' + (state.exportPeriod === pIds[i] ? ' active' : '');
+                    }
+                }
+
+                var data = buildExportDataset();
+                document.getElementById('exp-kpi-days').textContent = String(data.daysCount);
+                document.getElementById('exp-kpi-logs').textContent = String(data.totalLogs);
+                document.getElementById('exp-kpi-rate').textContent = data.rate + '%';
+
+                var counterEl = document.getElementById('preview-row-counter');
+                if (counterEl) {
+                    counterEl.textContent = 'Showing ' + Math.min(30, data.rows.length) + ' of ' + data.rows.length + ' days';
+                }
+
+                var tableHtml = '<thead><tr>';
+                for (var c = 0; c < data.header.length; c++) {
+                    tableHtml += '<th>' + escapeHtml(String(data.header[c])) + '</th>';
+                }
+                tableHtml += '</tr></thead><tbody>';
+
+                var previewCount = Math.min(30, data.rows.length);
+                for (var r = 0; r < previewCount; r++) {
+                    tableHtml += '<tr>';
+                    for (var cell = 0; cell < data.rows[r].length; cell++) {
+                        tableHtml += '<td>' + escapeHtml(String(data.rows[r][cell])) + '</td>';
+                    }
+                    tableHtml += '</tr>';
+                }
+                tableHtml += '</tbody>';
+                document.getElementById('sheet-preview-table').innerHTML = tableHtml;
+            }
+
+            function renderAll() {
+                renderHeader();
+                renderTodayTab();
+                renderMatrixTab();
+                renderMonthTab();
+                renderSheetsView();
+            }
+
+            /* =========================================================
+             * GLOBAL USER ACTIONS
+             * ========================================================= */
+            window.selectDate = function (dateKey) {
+                state.selectedDateKey = dateKey;
+                renderAll();
+            };
+
+            window.shiftWeek = function (delta) {
+                var next = state.weekOffset + delta;
+                if (next > 0) return;
+                state.weekOffset = next;
+                var wk = getWeekDates();
+                state.selectedDateKey = (state.weekOffset === 0) ? todayKey : toDateKey(wk[0]);
+                renderAll();
+            };
+
+            window.shiftMonth = function (delta) {
+                var next = state.monthOffset + delta;
+                if (next > 0) return;
+                state.monthOffset = next;
+                var first = new Date(todayDate.getFullYear(), todayDate.getMonth() + state.monthOffset, 1);
+                state.selectedDateKey = (state.monthOffset === 0) ? todayKey : toDateKey(first);
+                renderAll();
+            };
+
+            window.toggleHabit = function (habitId, optionalDateKey) {
+                var targetKey = optionalDateKey || state.selectedDateKey;
+                for (var i = 0; i < state.habits.length; i++) {
+                    if (state.habits[i].id === habitId) {
+                        if (state.habits[i].history[targetKey]) {
+                            delete state.habits[i].history[targetKey];
+                        } else {
+                            state.habits[i].history[targetKey] = true;
+                        }
+                        break;
+                    }
+                }
+                saveHabits();
+                renderAll();
+            };
+
+            window.deleteHabit = function (habitId) {
+                state.habits = state.habits.filter(function (h) { return h.id !== habitId; });
+                saveHabits();
+                renderAll();
+                showToast('Habit removed');
+            };
+
+            window.setCategory = function (cat) {
+                state.category = cat;
+                var btns = document.querySelectorAll('.cat-btn');
+                for (var i = 0; i < btns.length; i++) {
+                    btns[i].className = 'cat-btn' + (btns[i].getAttribute('data-cat') === cat ? ' active' : '');
+                }
+                renderTodayTab();
+            };
+
+            window.switchTab = function (tab) {
+                state.activeTab = tab;
+                var tabs = ['today', 'matrix', 'month', 'sheets'];
+                for (var i = 0; i < tabs.length; i++) {
+                    var t = tabs[i];
+                    var viewEl = document.getElementById('view-' + t);
+                    var navEl = document.getElementById('nav-' + t);
+                    if (t === tab) {
+                        viewEl.classList.remove('hidden');
+                        navEl.classList.add('active');
+                    } else {
+                        viewEl.classList.add('hidden');
+                        navEl.classList.remove('active');
+                    }
+                }
+                renderAll();
+            };
+
+            window.setExportPeriod = function (period) {
+                state.exportPeriod = period;
+                var customBox = document.getElementById('custom-range-box');
+                if (period === 'custom') {
+                    customBox.classList.remove('hidden');
+                    var sIn = document.getElementById('exp-start');
+                    var eIn = document.getElementById('exp-end');
+                    if (!sIn.value) sIn.value = toDateKey(addDays(todayDate, -30));
+                    if (!eIn.value) eIn.value = todayKey;
+                } else {
+                    customBox.classList.add('hidden');
+                }
+                renderSheetsView();
+            };
+
+            window.renderSheetsView = renderSheetsView;
+
+            function formatCSVString(data) {
+                var allRows = [data.header].concat(data.rows);
+                // Append summary row at bottom
+                var summaryRow = ['SUMMARY (' + data.startKey + ' to ' + data.endKey + ')', data.daysCount + ' Days'];
+                for (var h = 0; h < state.habits.length; h++) {
+                    var habitTotal = 0;
+                    for (var r = 0; r < data.rows.length; r++) {
+                        if (data.rows[r][h + 2] === 1) habitTotal++;
+                    }
+                    summaryRow.push(habitTotal + '/' + data.daysCount);
+                }
+                summaryRow.push(data.totalLogs, data.daysCount * state.habits.length, data.rate + '%');
+                allRows.push(summaryRow);
+
+                var csvLines = [];
+                for (var i = 0; i < allRows.length; i++) {
+                    var row = allRows[i];
+                    var cols = [];
+                    for (var c = 0; c < row.length; c++) {
+                        var val = String(row[c] === undefined || row[c] === null ? '' : row[c]);
+                        if (val.indexOf(',') !== -1 || val.indexOf('"') !== -1) {
+                            val = '"' + val.replace(/"/g, '""') + '"';
+                        }
+                        cols.push(val);
+                    }
+                    csvLines.push(cols.join(','));
+                }
+                return csvLines.join('\r\n');
+            }
+
+            function formatTSVString(data) {
+                var allRows = [data.header].concat(data.rows);
+                var tsvLines = [];
+                for (var r = 0; r < allRows.length; r++) {
+                    tsvLines.push(allRows[r].join('\t'));
+                }
+                return tsvLines.join('\n');
+            }
+
+            function copyTextReliable(text) {
+                var copied = false;
+                try {
+                    var ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.top = '0';
+                    ta.style.left = '0';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.focus();
+                    ta.select();
+                    copied = document.execCommand('copy');
+                    document.body.removeChild(ta);
+                } catch (e) {}
+
+                if (!copied && navigator.clipboard && navigator.clipboard.writeText) {
+                    try { navigator.clipboard.writeText(text); copied = true; } catch (e) {}
+                }
+                return copied;
+            }
+
+            window.generateSixMonthsHistory = function (alsoExportModal) {
+                var rates = [0.88, 0.76, 0.81, 0.74, 0.69, 0.82];
+                for (var h = 0; h < state.habits.length; h++) {
+                    var prob = rates[h % rates.length];
+                    for (var d = -180; d <= 0; d++) {
+                        var dt = addDays(todayDate, d);
+                        var seed = Math.sin(d * 12.9898 + (h + 1) * 78.233) * 43758.5453;
+                        var rand = seed - Math.floor(seed);
+                        if (rand < prob) {
+                            state.habits[h].history[toDateKey(dt)] = true;
+                        } else {
+                            delete state.habits[h].history[toDateKey(dt)];
+                        }
+                    }
+                }
+                // Automatically switch period to 6months so user immediately sees 180 days in the preview
+                state.exportPeriod = '6months';
+                document.getElementById('custom-range-box').classList.add('hidden');
+                saveHabits();
+                renderAll();
+
+                if (alsoExportModal) {
+                    window.downloadCSVForSheets();
+                } else {
+                    showToast('✨ Populated 180 days (6 Months) of habit logs!');
+                }
+            };
+
+            window.downloadCSVForSheets = function () {
+                var data = buildExportDataset();
+                var csvBody = formatCSVString(data);
+                var fileName = 'HabitPulse_' + state.exportPeriod + '_' + data.startKey + '_to_' + data.endKey + '.csv';
+                var dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent('\uFEFF' + csvBody);
+
+                // 1. Populate & open the Sandbox-Safe Export Drawer Modal immediately
+                var anchor = document.getElementById('direct-csv-anchor');
+                if (anchor) {
+                    anchor.setAttribute('href', dataUri);
+                    anchor.setAttribute('download', fileName);
+                }
+                document.getElementById('export-modal-title').textContent = '📊 ' + fileName;
+                document.getElementById('export-modal-sub').textContent = data.daysCount + ' days • ' + data.totalLogs + ' check-ins (' + data.rate + '% consistency)';
+                var rawBox = document.getElementById('export-raw-textarea');
+                rawBox.value = csvBody;
+                document.getElementById('export-modal').classList.remove('hidden');
+
+                // 2. Also attempt automatic browser Blob download in case environment allows it
+                try {
+                    var blob = new Blob(['\uFEFF' + csvBody], { type: 'text/csv;charset=utf-8;' });
+                    var url = URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+                } catch (e) {}
+
+                showToast('📊 Report ready! Use Download or Copy below.');
+            };
+
+            window.closeExportModal = function () {
+                document.getElementById('export-modal').classList.add('hidden');
+            };
+
+            window.selectAllExportText = function () {
+                var box = document.getElementById('export-raw-textarea');
+                box.focus();
+                box.select();
+                copyTextReliable(box.value);
+                showToast('📋 Selected & copied to clipboard!');
+            };
+
+            window.copyModalText = function (mode) {
+                var data = buildExportDataset();
+                var text = (mode === 'tsv') ? formatTSVString(data) : formatCSVString(data);
+                var rawBox = document.getElementById('export-raw-textarea');
+                rawBox.value = text;
+                rawBox.focus();
+                rawBox.select();
+                copyTextReliable(text);
+                if (mode === 'tsv') {
+                    showToast('📋 Copied TSV! Open sheets.new & press Ctrl+V / ⌘V');
+                } else {
+                    showToast('📄 Copied raw CSV text to clipboard!');
+                }
+            };
+
+            window.copyTSVForSheets = function () {
+                var data = buildExportDataset();
+                var tsvText = formatTSVString(data);
+                copyTextReliable(tsvText);
+                showToast('📋 Copied! Open sheets.new and press Ctrl+V / ⌘V');
+            };
+
+            window.downloadPWAHelperFiles = function () {
+                var manifestObj = {
+                    name: "HabitPulse - Daily Goal & Streak Tracker",
+                    short_name: "HabitPulse",
+                    start_url: "./index.html",
+                    display: "standalone",
+                    background_color: "#0f172a",
+                    theme_color: "#4f46e5",
+                    icons: [
+                        { src: "icon-192.png", sizes: "192x192", type: "image/png" },
+                        { src: "icon-512.png", sizes: "512x512", type: "image/png" }
+                    ]
+                };
+                document.getElementById('backup-modal-title').textContent = '📦 PWA manifest.json';
+                document.getElementById('backup-modal-sub').textContent = 'Already embedded via Data URI, or save as manifest.json';
+                document.getElementById('backup-json-textarea').value = JSON.stringify(manifestObj, null, 2);
+                document.getElementById('restore-json-btn').classList.add('hidden');
+                document.getElementById('backup-modal').classList.remove('hidden');
+            };
+
+            window.openBackupModal = function () {
+                document.getElementById('backup-modal-title').textContent = '💾 Backup & Restore Habit Data';
+                document.getElementById('backup-modal-sub').textContent = 'Copy this JSON to save a backup, or paste JSON to restore';
+                document.getElementById('backup-json-textarea').value = JSON.stringify({ habits: state.habits }, null, 2);
+                document.getElementById('restore-json-btn').classList.remove('hidden');
+                document.getElementById('backup-modal').classList.remove('hidden');
+            };
+
+            window.closeBackupModal = function () {
+                document.getElementById('backup-modal').classList.add('hidden');
+            };
+
+            window.copyBackupJson = function () {
+                var txt = document.getElementById('backup-json-textarea').value;
+                copyTextReliable(txt);
+                showToast('📋 Copied JSON to clipboard!');
+            };
+
+            window.restoreBackupJson = function () {
+                try {
+                    var raw = document.getElementById('backup-json-textarea').value;
+                    var parsed = JSON.parse(raw);
+                    if (parsed && Array.isArray(parsed.habits)) {
+                        state.habits = parsed.habits;
+                        saveHabits();
+                        renderAll();
+                        closeBackupModal();
+                        showToast('✅ Habit data restored successfully!');
+                    } else {
+                        showToast('Invalid JSON format: missing "habits" array');
+                    }
+                } catch (e) {
+                    showToast('Invalid JSON syntax – please check your paste');
+                }
+            };
+
+            window.toggleWebhookGuide = function () {
+                document.getElementById('webhook-guide-box').classList.toggle('hidden');
+            };
+
+            window.pushToWebhook = function () {
+                var url = document.getElementById('webhook-url').value.trim();
+                if (!url) {
+                    showToast('Please paste your Apps Script Web App URL first');
+                    return;
+                }
+                var data = buildExportDataset();
+                var payload = {
+                    period: state.exportPeriod,
+                    rows: [data.header].concat(data.rows)
+                };
+                try {
+                    fetch(url, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload)
+                    }).then(function () {
+                        showToast('☁️ Sent dataset to Google Sheet webhook!');
+                    }).catch(function () {
+                        showToast('Webhook error – verify deployment URL');
+                    });
+                } catch (e) {
+                    showToast('Webhook request blocked in sandbox');
+                }
+            };
+
+            /* =========================================================
+             * MODAL & UTILITIES
+             * ========================================================= */
+            function renderEmojiPicker() {
+                var html = '';
+                for (var i = 0; i < EMOJIS.length; i++) {
+                    var em = EMOJIS[i];
+                    html += '<button type="button" class="emoji-choice' + (state.pickedEmoji === em ? ' selected' : '') + '" onclick="pickEmoji(\'' + em + '\')">' + em + '</button>';
+                }
+                document.getElementById('emoji-grid').innerHTML = html;
+            }
+
+            window.pickEmoji = function (em) {
+                state.pickedEmoji = em;
+                renderEmojiPicker();
+            };
+
+            window.openModal = function () {
+                state.pickedEmoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+                document.getElementById('new-habit-name').value = '';
+                renderEmojiPicker();
+                document.getElementById('add-modal').classList.remove('hidden');
+            };
+
+            window.closeModal = function () {
+                document.getElementById('add-modal').classList.add('hidden');
+            };
+
+            window.handleAddHabit = function (e) {
+                e.preventDefault();
+                var nameInput = document.getElementById('new-habit-name');
+                var name = nameInput.value.trim();
+                if (!name) return;
+                var cat = document.getElementById('new-habit-cat').value;
+                var goal = parseInt(document.getElementById('new-habit-goal').value, 10) || 5;
+
+                state.habits.unshift({
+                    id: 'h_' + Date.now(),
+                    name: name,
+                    category: cat,
+                    weeklyGoal: goal,
+                    emoji: state.pickedEmoji,
+                    history: {}
+                });
+                saveHabits();
+                closeModal();
+                renderAll();
+                showToast('Added "' + name + '"');
+            };
+
+            window.resetDemoData = function () {
+                state.habits = createSeedHabits();
+                state.selectedDateKey = todayKey;
+                state.weekOffset = 0;
+                state.monthOffset = 0;
+                saveHabits();
+                renderAll();
+                showToast('Demo data restored!');
+            };
+
+            window.toggleTheme = function () {
+                var htmlEl = document.documentElement;
+                var isLight = htmlEl.classList.toggle('light');
+                document.getElementById('theme-btn').textContent = isLight ? '🌙' : '☀️';
+            };
+
+            var toastTimeout = null;
+            function showToast(msg) {
+                var el = document.getElementById('toast');
+                el.textContent = msg;
+                el.classList.add('show');
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(function () {
+                    el.classList.remove('show');
+                }, 2300);
+            }
+
+            function escapeHtml(str) {
+                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            }
+
+            // Initialize immediately
+            initState();
+            updateAuthUI();
+            renderAll();
+        })();
+    </script>
+
+    <!-- FIREBASE AUTHENTICATION & CLOUD FIRESTORE MULTI-USER MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth,
+            signInAnonymously,
+            signInWithCustomToken,
+            onAuthStateChanged,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            GoogleAuthProvider,
+            signInWithPopup,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            setDoc,
+            onSnapshot
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'habitpulse-family-app';
+        let db = null;
+        let auth = null;
+        let firebaseUser = null;
+        let activeAccountKey = 'guest-local';
+        let activeDisplayName = 'Guest';
+        let activeEmail = '';
+        let unsubscribeSnapshot = null;
+        let isApplyingRemote = false;
+
+        // Deterministic ID helper so each family member's email/password maps to their own isolated cloud profile
+        function emailToProfileId(email) {
+            return 'acct_' + email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        }
+
+        async function hashPin(str) {
+            try {
+                const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+                return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch (e) {
+                return btoa(unescape(encodeURIComponent(str)));
+            }
+        }
+
+        function getProfileDocRef(accountKey) {
+            if (!db || !firebaseUser) return null;
+            // If the user is a credentialed family account (acct_*), store under public/data/family_profiles/{accountKey}
+            // so the same family member can log in from any phone or APK and get their exact habits!
+            // If using private default session, store under users/{uid}/profile/main.
+            if (accountKey && accountKey.startsWith('acct_')) {
+                return doc(db, 'artifacts', appId, 'public', 'data', 'habitpulse_accounts', accountKey);
+            }
+            return doc(db, 'artifacts', appId, 'users', firebaseUser.uid, 'habitpulse_data', 'main');
+        }
+
+        function attachRealtimeListener(accountKey) {
+            if (unsubscribeSnapshot) {
+                unsubscribeSnapshot();
+                unsubscribeSnapshot = null;
+            }
+            if (!db || !firebaseUser) return;
+
+            const ref = getProfileDocRef(accountKey);
+            if (!ref) return;
+
+            unsubscribeSnapshot = onSnapshot(
+                ref,
+                (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        if (data && data.habitsJson) {
+                            try {
+                                const parsed = JSON.parse(data.habitsJson);
+                                if (Array.isArray(parsed)) {
+                                    isApplyingRemote = true;
+                                    window.__applyUserHabitsFromCloud(
+                                        {
+                                            id: accountKey === 'default-uid' ? firebaseUser.uid : accountKey,
+                                            name: data.displayName || activeDisplayName,
+                                            email: data.email || activeEmail,
+                                            isCloud: true
+                                        },
+                                        parsed
+                                    );
+                                    isApplyingRemote = false;
+                                }
+                            } catch (e) {}
+                        }
+                    } else {
+                        // First time this user profile connects: seed their cloud doc with current habits
+                        const currentHabits = window.__getCurrentHabitsSnapshot ? window.__getCurrentHabitsSnapshot() : [];
+                        setDoc(ref, {
+                            displayName: activeDisplayName,
+                            email: activeEmail,
+                            habitsJson: JSON.stringify(currentHabits),
+                            updatedAt: Date.now()
+                        }, { merge: true }).catch(() => {});
+                    }
+                },
+                (err) => {
+                    console.warn('Firestore listener warning:', err);
+                }
+            );
+        }
+
+        window.__syncHabitsToCloud = async function (habitsArray, showFeedback) {
+            if (isApplyingRemote) return;
+            if (!db || !firebaseUser) {
+                if (showFeedback && window.__notifyToast) {
+                    window.__notifyToast('📱 Saved on device (Cloud offline)');
+                }
+                return;
+            }
+            try {
+                const ref = getProfileDocRef(activeAccountKey);
+                if (!ref) return;
+                await setDoc(ref, {
+                    displayName: activeDisplayName,
+                    email: activeEmail,
+                    habitsJson: JSON.stringify(habitsArray),
+                    updatedAt: Date.now()
+                }, { merge: true });
+                if (showFeedback && window.__notifyToast) {
+                    window.__notifyToast('☁️ Synced habits to Cloud Firestore!');
+                }
+            } catch (e) {
+                if (showFeedback && window.__notifyToast) {
+                    window.__notifyToast('📱 Saved locally');
+                }
+            }
+        };
+
+        window.__performCredentialLogin = async function (mode, email, password, customName) {
+            const acctKey = emailToProfileId(email);
+            const fallbackName = customName || email.split('@')[0];
+            const passHash = await hashPin(password);
+
+            // Ensure base Firebase Auth is active first (RULE 3)
+            if (auth && !firebaseUser) {
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    firebaseUser = auth.currentUser;
+                } catch (e) {}
+            }
+
+            // Try native Firebase Email/Password Auth if enabled, otherwise seamlessly use Firestore credentialed profile
+            if (auth) {
+                try {
+                    if (mode === 'signup') {
+                        await createUserWithEmailAndPassword(auth, email, password);
+                    } else {
+                        await signInWithEmailAndPassword(auth, email, password);
+                    }
+                    firebaseUser = auth.currentUser;
+                } catch (nativeAuthErr) {
+                    // Fallback to Firestore multi-user profile verification (works even when Email provider isn't toggled in console)
+                }
+            }
+
+            if (db && firebaseUser) {
+                try {
+                    const acctRef = doc(db, 'artifacts', appId, 'public', 'data', 'habitpulse_accounts', acctKey);
+                    const snap = await getDoc(acctRef);
+
+                    if (mode === 'signup') {
+                        if (snap.exists() && snap.data().passHash && snap.data().passHash !== passHash) {
+                            window.__notifyToast('Account already exists — switch to Sign In');
+                            return;
+                        }
+                        const currentHabits = window.__getCurrentHabitsSnapshot ? window.__getCurrentHabitsSnapshot() : [];
+                        activeAccountKey = acctKey;
+                        activeDisplayName = fallbackName;
+                        activeEmail = email;
+                        await setDoc(acctRef, {
+                            displayName: activeDisplayName,
+                            email: activeEmail,
+                            passHash: passHash,
+                            habitsJson: snap.exists() && snap.data().habitsJson ? snap.data().habitsJson : JSON.stringify(currentHabits),
+                            updatedAt: Date.now()
+                        }, { merge: true });
+
+                        attachRealtimeListener(acctKey);
+                        window.closeAuthModal();
+                        window.__notifyToast('🎉 Account created & Cloud Synced!');
+                        return;
+                    } else {
+                        // Sign In mode
+                        if (snap.exists()) {
+                            const data = snap.data();
+                            if (data.passHash && data.passHash !== passHash) {
+                                window.__notifyToast('❌ Incorrect password for ' + email);
+                                return;
+                            }
+                            activeAccountKey = acctKey;
+                            activeDisplayName = data.displayName || fallbackName;
+                            activeEmail = email;
+                            const loadedHabits = data.habitsJson ? JSON.parse(data.habitsJson) : [];
+                            window.__applyUserHabitsFromCloud(
+                                { id: acctKey, name: activeDisplayName, email: activeEmail, isCloud: true },
+                                loadedHabits
+                            );
+                            attachRealtimeListener(acctKey);
+                            window.closeAuthModal();
+                            window.__notifyToast('☁️ Welcome back, ' + activeDisplayName + '!');
+                            return;
+                        } else {
+                            // Auto-provision account if signing in for the first time
+                            const currentHabits = window.__getCurrentHabitsSnapshot ? window.__getCurrentHabitsSnapshot() : [];
+                            activeAccountKey = acctKey;
+                            activeDisplayName = fallbackName;
+                            activeEmail = email;
+                            await setDoc(acctRef, {
+                                displayName: activeDisplayName,
+                                email: activeEmail,
+                                passHash: passHash,
+                                habitsJson: JSON.stringify(currentHabits),
+                                updatedAt: Date.now()
+                            }, { merge: true });
+                            attachRealtimeListener(acctKey);
+                            window.closeAuthModal();
+                            window.__notifyToast('☁️ Signed in & synced as ' + activeDisplayName + '!');
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    console.warn('Cloud profile login error:', err);
+                }
+            }
+
+            // Local multi-user fallback if offline
+            activeAccountKey = acctKey;
+            activeDisplayName = fallbackName;
+            activeEmail = email;
+            window.__applyUserHabitsFromCloud(
+                { id: acctKey, name: activeDisplayName, email: activeEmail, isCloud: false },
+                window.__getCurrentHabitsSnapshot()
+            );
+            window.closeAuthModal();
+            window.__notifyToast('📱 Signed in locally as ' + activeDisplayName);
+        };
+
+        window.__performGoogleLogin = async function () {
+            if (!auth) {
+                window.__notifyToast('Use Email & Password above to sign in');
+                return;
+            }
+            try {
+                const provider = new GoogleAuthProvider();
+                const res = await signInWithPopup(auth, provider);
+                if (res && res.user) {
+                    firebaseUser = res.user;
+                    const email = res.user.email || (res.user.uid + '@google.user');
+                    activeAccountKey = emailToProfileId(email);
+                    activeDisplayName = res.user.displayName || email.split('@')[0];
+                    activeEmail = email;
+                    attachRealtimeListener(activeAccountKey);
+                    window.closeAuthModal();
+                    window.__notifyToast('☁️ Signed in with Google as ' + activeDisplayName);
+                }
+            } catch (e) {
+                window.__notifyToast('Popup blocked in preview — use Email & Password above!');
+            }
+        };
+
+        window.__performSignOutToGuest = async function () {
+            if (unsubscribeSnapshot) {
+                unsubscribeSnapshot();
+                unsubscribeSnapshot = null;
+            }
+            activeAccountKey = 'default-uid';
+            activeDisplayName = 'Guest';
+            activeEmail = '';
+            window.__applyUserHabitsFromCloud(
+                {
+                    id: firebaseUser ? firebaseUser.uid : 'guest-local',
+                    name: 'Guest',
+                    email: '',
+                    isCloud: !!firebaseUser
+                },
+                null
+            );
+            window.closeAuthModal();
+            window.__notifyToast('Switched to Guest profile');
+        };
+
+        async function initFirebaseCloud() {
+            try {
+                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                    return;
+                }
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // RULE 3: Authenticate FIRST before any Firestore operations
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    firebaseUser = user;
+                    if (user) {
+                        if (activeAccountKey === 'guest-local') {
+                            activeAccountKey = 'default-uid';
+                        }
+                        window.__applyUserHabitsFromCloud(
+                            {
+                                id: activeAccountKey === 'default-uid' ? user.uid : activeAccountKey,
+                                name: activeDisplayName,
+                                email: activeEmail,
+                                isCloud: true
+                            },
+                            null
+                        );
+                        attachRealtimeListener(activeAccountKey);
+                    }
+                });
+            } catch (e) {
+                console.warn('Running in local mode:', e);
+            }
+        }
+
+        initFirebaseCloud();
+    </script>
+</body>
+</html>
