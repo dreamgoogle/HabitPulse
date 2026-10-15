@@ -20,7 +20,19 @@ Pehli baar chalane par emulator JAR download hoga (~60 MB, ek baar).
 ### Zaroorat
 
 - Node 20+ (built-in test runner ke liye)
-- Java 11+ (Firestore emulator ke liye) — `java -version` se check kar lijiye
+- **Java 21+** (Firestore emulator ke liye) — `java -version` se check kar lijiye.
+  firebase-tools v15 se Java 21 se neeche support khatam hai; Java 17 par ye
+  error milta hai:
+  `firebase-tools no longer supports Java version before 21`
+
+  ```bash
+  # Ubuntu / Debian
+  sudo apt install openjdk-21-jdk-headless
+  sudo update-alternatives --config java    # 21 select kijiye
+
+  # macOS
+  brew install openjdk@21
+  ```
 
 ## Kya cover hota hai (48 tests)
 
