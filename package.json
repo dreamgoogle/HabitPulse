@@ -1,0 +1,25 @@
+{
+  "name": "habitpulse",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "HabitPulse — daily habit tracker with Google sign-in, per-user cloud sync and CSV/Sheets export.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "emulators": "firebase emulators:start",
+    "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:hosting": "npm run build && firebase deploy --only hosting:app",
+    "deploy:admin": "cd admin && npm run build && cd .. && firebase deploy --only hosting:admin",
+    "icons": "node scripts/generate-icons.mjs"
+  },
+  "dependencies": {
+    "firebase": "^11.6.1"
+  },
+  "devDependencies": {
+    "sharp": "^0.33.5",
+    "vite": "^5.4.11"
+  }
+}
