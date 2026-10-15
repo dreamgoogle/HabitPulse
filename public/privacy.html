@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — HabitPulse</title>
+  <style>
+    body { max-width: 760px; margin: 0 auto; padding: 40px 22px 80px;
+           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+           line-height: 1.7; color: #1f2937; background: #fff; }
+    h1 { font-size: 28px; margin-bottom: 6px; }
+    h2 { font-size: 18px; margin-top: 32px; margin-bottom: 8px; }
+    .meta { color: #6b7280; font-size: 14px; margin-bottom: 28px; }
+    ul { padding-left: 22px; }
+    li { margin-bottom: 6px; }
+    a { color: #4f46e5; }
+    code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+    .todo { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 14px 18px;
+            margin: 24px 0; font-size: 14px; border-radius: 0 8px 8px 0; }
+  </style>
+</head>
+<body>
+  <h1>Privacy Policy</h1>
+  <p class="meta">HabitPulse · Last updated: <!-- TODO -->__DATE__</p>
+
+  <div class="todo">
+    <strong>⚠️ Template — publish karne se pehle padhiye.</strong><br>
+    Ye ek starting draft hai, legal advice nahi. Har <code>__PLACEHOLDER__</code> bhariye,
+    aur agar aap India ke bahar users le rahe hain (GDPR/CCPA) to ek baar kisi vakeel se
+    review karwa lijiye. Play Console is URL ko maangta hai aur reject bhi kar sakta hai
+    agar ye Data Safety form se match na kare.
+  </div>
+
+  <h2>1. Hum kaun hain</h2>
+  <p>
+    HabitPulse ("app", "hum") ek habit tracking application hai, jise
+    <strong>__YOUR_NAME_OR_COMPANY__</strong> operate karta hai.
+    Sampark: <a href="mailto:__SUPPORT_EMAIL__">__SUPPORT_EMAIL__</a>
+  </p>
+
+  <h2>2. Hum kaun sa data collect karte hain</h2>
+  <ul>
+    <li><strong>Account information</strong> — jab aap Google se sign in karte hain, hum aapka
+      naam, email address, profile photo URL aur Google account ka unique identifier (UID)
+      receive karte hain.</li>
+    <li><strong>App activity</strong> — aapke banaye gaye habits (naam, category, icon, weekly goal)
+      aur aapke daily check-in records (kaunsa habit kis din complete hua).</li>
+    <li><strong>Technical data</strong> — basic error logs aur app ke chalne ka diagnostic data,
+      jo Firebase ke through collect hota hai.</li>
+  </ul>
+  <p>
+    Hum aapka <strong>password kabhi store nahi karte</strong> — authentication poori tarah
+    Google handle karta hai. Hum location, contacts, camera, microphone, ya aapki device ki
+    files access nahi karte.
+  </p>
+
+  <h2>3. Is data ka istemaal kis liye hota hai</h2>
+  <ul>
+    <li>Aapko aapke apne device(s) par aapka data dikhane aur sync karne ke liye</li>
+    <li>Streaks, completion rates aur monthly statistics calculate karne ke liye</li>
+    <li>Aapke request par CSV / Google Sheets export generate karne ke liye</li>
+    <li>App ki overall health aur usage monitor karne ke liye (aggregated form mein — isme
+      aapki vyaktigat pehchaan nahi hoti)</li>
+  </ul>
+  <p>Hum aapka data <strong>advertising ke liye use nahi karte</strong>, aur na hi kisi ko bechte hain.</p>
+
+  <h2>4. Data kahan rehta hai</h2>
+  <p>
+    Aapka data Google Cloud Firestore mein store hota hai (region:
+    <code>__FIRESTORE_REGION__</code>). Har user ka data uske apne account ID ke neeche
+    isolate hota hai, aur server-side security rules ensure karte hain ki koi doosra user
+    use access na kar sake. Transit mein saara data HTTPS/TLS se encrypted rehta hai,
+    aur rest par Google Cloud ki default encryption lagti hai.
+  </p>
+
+  <h2>5. Google Sheets export</h2>
+  <p>
+    Jab aap "Create Google Sheet" choose karte hain, app aapse
+    <code>drive.file</code> permission maangta hai. Ye permission app ko sirf
+    <em>unhi files</em> tak access deta hai jo app khud banata hai — aapki baaki Google Drive
+    hum dekh hi nahi sakte. Bani hui sheet aapki apni Drive mein rehti hai aur uska
+    ownership aapka hota hai.
+  </p>
+
+  <h2>6. Third-party services</h2>
+  <ul>
+    <li><strong>Firebase (Google LLC)</strong> — authentication, database, hosting aur functions.
+      <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase privacy</a></li>
+    <li><strong>Google Sheets API</strong> — sirf tab jab aap khud export trigger karein.</li>
+  </ul>
+
+  <h2>7. Aapke adhikaar</h2>
+  <ul>
+    <li><strong>Access</strong> — apna poora data kabhi bhi app ke Export tab se CSV mein download kijiye.</li>
+    <li><strong>Deletion</strong> — app mein Account → "Delete My Account & All Data", ya
+      <a href="/delete-account.html">is page</a> se. Delete karne par aapke habits, logs aur
+      profile permanently mit jaate hain.</li>
+    <li><strong>Correction</strong> — app ke andar apne habits kabhi bhi edit ya delete kar sakte hain.</li>
+  </ul>
+
+  <h2>8. Data retention</h2>
+  <p>
+    Aapka data tab tak rakha jata hai jab tak aapka account exist karta hai. Account delete
+    karne par data turant mita diya jata hai; backup copies se bhi
+    <strong>__RETENTION_DAYS__</strong> dinon ke andar hat jata hai.
+  </p>
+
+  <h2>9. Bachche</h2>
+  <p>
+    Ye app <strong>13 saal se kam</strong> umar ke bachchon ke liye nahi hai, aur hum
+    jaan-boojh kar unka data collect nahi karte.
+  </p>
+
+  <h2>10. Is policy mein badlaav</h2>
+  <p>
+    Policy badalne par hum upar "Last updated" ki tareekh update karenge, aur bade badlaav
+    ki soochna app ke andar denge.
+  </p>
+
+  <h2>11. Sampark</h2>
+  <p>
+    Koi sawaal ho to likhiye: <a href="mailto:__SUPPORT_EMAIL__">__SUPPORT_EMAIL__</a>
+  </p>
+</body>
+</html>
