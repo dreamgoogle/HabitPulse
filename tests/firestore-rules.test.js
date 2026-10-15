@@ -13,6 +13,7 @@
  * toolchain upgrade karna uchit nahi tha.
  */
 import { before, after, beforeEach, describe, it } from 'node:test';
+import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   initializeTestEnvironment,
@@ -376,12 +377,28 @@ describe('habit validation', () => {
 describe('log validation', () => {
   beforeEach(seedAlice);
 
-  it('galat doc id reject hoti hai', async () => {
-    const bad = ['garbage', '2026-1-5', '20261015', '2026-10-15-extra', '../etc', ''];
+  it('galat format wali doc id rules reject karti hain', async () => {
+    // Sirf wahi ids jo SDK se guzar kar rules tak pahunchti hain.
+    // Slash ya khaali wali ids neeche wale test mein hain — unhe SDK pehle hi
+    // rok deta hai, isliye rules unhe kabhi dekhti hi nahi.
+    const bad = ['garbage', '2026-1-5', '20261015', '2026-10-15-extra', '2026-13-45'];
     for (const id of bad) {
-      if (!id) continue; // khaali id client-side hi invalid hai
       await assertFails(
         setDoc(doc(asAlice(), 'users', ALICE, 'logs', id), validLog({ date: id }))
+      );
+    }
+  });
+
+  it('slash/khaali doc id SDK hi reject kar deta hai (defence in depth)', () => {
+    // Ye rules ka test nahi hai — ye document karta hai ki path traversal jaisi
+    // ids rules tak pahunchti hi nahi. doc() reference banate waqt synchronously
+    // throw karta hai, kyunki '/' extra path segment bana deta hai.
+    const db = asAlice();
+    for (const id of ['../etc', 'a/b', '']) {
+      assert.throws(
+        () => doc(db, 'users', ALICE, 'logs', id),
+        /even number of segments/,
+        `SDK ko "${id}" reject karna chahiye tha`
       );
     }
   });

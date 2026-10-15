@@ -27,8 +27,11 @@ service cloud.firestore {
       return isSignedIn() && request.auth.token.admin == true;
     }
 
+    // Month 01-12 aur day 01-31 bhi check hota hai. Pehle sirf [0-9]{2} tha,
+    // jisse `2026-13-45` jaisi impossible dates bhi log ban jati thi.
+    // (Feb 30 jaisa case nahi pakda jata — wahan se faayda kam hai.)
     function isValidDateKey(key) {
-      return key.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+      return key.matches('^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$');
     }
 
     // ---------------------------------------------------------------
