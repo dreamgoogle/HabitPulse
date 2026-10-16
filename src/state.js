@@ -11,6 +11,7 @@ export const state = {
   exportStart: '',
   exportEnd: '',
   pickedEmoji: '✅',
+  editingId: null, // null = naya habit, warna edit hota hua habitId
   user: null,
   syncing: false,
 };

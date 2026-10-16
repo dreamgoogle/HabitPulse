@@ -14,7 +14,8 @@
     "deploy:hosting": "npm run build && firebase deploy --only hosting:app",
     "deploy:admin": "cd admin && npm run build && cd .. && firebase deploy --only hosting:admin",
     "icons": "node scripts/generate-icons.mjs",
-    "test": "firebase emulators:exec --only firestore --project habitpulse-rules-test \"node --test tests/*.test.js\"",
+    "check:css": "node scripts/check-classes.mjs",
+    "test": "node scripts/check-classes.mjs && firebase emulators:exec --only firestore --project habitpulse-rules-test \"node --test tests/*.test.js\"",
     "test:watch": "firebase emulators:exec --only firestore --project habitpulse-rules-test \"node --test --watch tests/*.test.js\""
   },
   "dependencies": {

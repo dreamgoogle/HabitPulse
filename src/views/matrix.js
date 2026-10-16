@@ -16,7 +16,7 @@ export function renderMatrixTab() {
       week
         .map(
           (d) =>
-            `<th class="${toDateKey(d) === todayKey ? 'is-today' : ''}">` +
+            `<th${toDateKey(d) === todayKey ? ' style="color:var(--brand-light);"' : ''}>` +
             `<div>${DAY_SHORT[d.getDay()]}</div><div style="font-size:9px; opacity:0.75;">${d.getDate()}</div></th>`
         )
         .join('')

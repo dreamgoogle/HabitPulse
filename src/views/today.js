@@ -145,13 +145,14 @@ export function renderTodayTab() {
           `<div class="habit-info">` +
           `<div class="habit-name">${escapeHtml(hab.name)}</div>` +
           `<div class="habit-meta">` +
-          `<span class="streak-tag">🔥 ${streak}d streak</span>` +
+          `<span class="streak-tag">🔥 ${streak}d</span>` +
           `<span>• ${weekDone}/${goal} wk</span>` +
           `<span>• ${escapeHtml(hab.category || '')}</span>` +
           `</div>` +
           `<div class="mini-dots">${dots}</div>` +
           `</div></div>` +
           `<div class="habit-actions">` +
+          `<button class="del-btn" data-action="edit-habit" data-habit-id="${id}" title="Edit Habit">✏️</button>` +
           `<button class="del-btn" data-action="delete-habit" data-habit-id="${id}" title="Delete Habit">🗑️</button>` +
           `<button class="check-btn${on ? ' done' : ''}" data-action="toggle-habit" ` +
           `data-habit-id="${id}" aria-label="${escapeHtml(hab.name)} done">${on ? '✓' : ''}</button>` +

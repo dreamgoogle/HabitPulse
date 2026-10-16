@@ -283,7 +283,7 @@
         <div id="add-modal" class="modal-backdrop hidden">
             <div class="modal-sheet">
                 <div class="card-header">
-                    <div class="card-title">Create New Daily Habit</div>
+                    <div id="habit-modal-title" class="card-title">Create New Daily Habit</div>
                     <button data-action="close-add" aria-label="Close" style="font-size:18px; color:var(--text-sub); padding:4px;">✕</button>
                 </div>
                 <form id="add-habit-form" style="display:flex; flex-direction:column; gap:12px;">
@@ -304,9 +304,13 @@
                         <div>
                             <label for="new-habit-goal" style="font-size:11px; font-weight:700; color:var(--text-sub); display:block; margin-bottom:4px;">WEEKLY GOAL</label>
                             <select id="new-habit-goal" class="input-box">
-                                <option value="7">7 days / week</option>
+                                <option value="7">7 days / week (daily)</option>
+                                <option value="6">6 days / week</option>
                                 <option value="5" selected>5 days / week</option>
+                                <option value="4">4 days / week</option>
                                 <option value="3">3 days / week</option>
+                                <option value="2">2 days / week</option>
+                                <option value="1">1 day / week</option>
                             </select>
                         </div>
                     </div>
@@ -316,7 +320,7 @@
                     </div>
                     <div style="display:flex; gap:8px; margin-top:6px;">
                         <button type="button" data-action="close-add" style="flex:1; padding:12px; border-radius:12px; background:var(--bg-card); font-weight:700; font-size:13px;">Cancel</button>
-                        <button type="submit" style="flex:2; padding:12px; border-radius:12px; background:var(--brand); color:#fff; font-weight:800; font-size:13px;">Save Habit</button>
+                        <button id="habit-save-btn" type="submit" style="flex:2; padding:12px; border-radius:12px; background:var(--brand); color:#fff; font-weight:800; font-size:13px;">Save Habit</button>
                     </div>
                 </form>
             </div>

@@ -237,13 +237,34 @@ export async function deleteHabit(habitId) {
   // Function `pruneOrphanLogKeys` karta hai.
 }
 
-export async function renameHabit(habitId, name) {
+/**
+ * Habit ki properties badlo — naam, emoji, category, weekly goal.
+ * History (logs) ko haath nahi lagta; wo habitId se bandhi hai, naam se nahi.
+ */
+export async function updateHabit(habitId, patch) {
   const habit = habits.find((h) => h.id === habitId);
   if (!habit) return;
-  habit.name = String(name).slice(0, 36);
+
+  const next = {
+    name: String(patch.name ?? habit.name).trim().slice(0, 36),
+    category: patch.category ?? habit.category,
+    emoji: patch.emoji ?? habit.emoji,
+    weeklyGoal: Math.min(7, Math.max(1, Number(patch.weeklyGoal ?? habit.weeklyGoal) || 5)),
+  };
+  if (!next.name) throw new Error('Naam khali nahi ho sakta');
+
+  const before = { name: habit.name, category: habit.category, emoji: habit.emoji, weeklyGoal: habit.weeklyGoal };
+  Object.assign(habit, next);
   onChange();
+
   if (isGuest()) return writeGuest();
-  await updateDoc(doc(db, 'users', uid, 'habits', habitId), { name: habit.name });
+  try {
+    await updateDoc(doc(db, 'users', uid, 'habits', habitId), next);
+  } catch (err) {
+    Object.assign(habit, before); // rollback
+    onChange();
+    throw err;
+  }
 }
 
 /* ------------------------------------------------------------------ *

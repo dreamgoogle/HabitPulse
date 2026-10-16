@@ -15,6 +15,7 @@ import {
   toggleHabit,
   addHabit,
   deleteHabit,
+  updateHabit,
   hasLegacyData,
   migrateLegacyToCloud,
   isGuest,
@@ -121,6 +122,22 @@ function closeModal(id) {
   document.body.style.overflow = '';
 }
 
+/** Add aur Edit dono ek hi modal use karte hain. habitId null = naya habit. */
+function openHabitModal(habitId) {
+  const hab = habitId ? getHabits().find((h) => h.id === habitId) : null;
+  state.editingId = hab ? hab.id : null;
+  state.pickedEmoji = hab?.emoji || '✅';
+
+  $('new-habit-name').value = hab ? hab.name : '';
+  $('new-habit-cat').value = hab?.category || 'Health';
+  $('new-habit-goal').value = String(hab?.weeklyGoal || 5);
+  setText('habit-modal-title', hab ? 'Edit Habit' : 'Create New Daily Habit');
+  setText('habit-save-btn', hab ? 'Save Changes' : 'Save Habit');
+
+  renderEmojiPicker();
+  openModal('add-modal');
+}
+
 function renderEmojiPicker() {
   setHtml(
     'emoji-grid',
@@ -217,11 +234,8 @@ function wireEvents() {
       renderEmojiPicker();
     },
 
-    'open-add': () => {
-      state.pickedEmoji = '✅';
-      renderEmojiPicker();
-      openModal('add-modal');
-    },
+    'open-add': () => openHabitModal(null),
+    'edit-habit': ({ habitId }) => openHabitModal(habitId),
     'close-add': () => closeModal('add-modal'),
 
     'open-auth': () => openModal('auth-modal'),
@@ -267,23 +281,30 @@ function wireEvents() {
     'export-sheet': handleGoogleSheet,
   });
 
-  // Add-habit form
+  // Add / Edit habit form
   $('add-habit-form')?.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     const name = $('new-habit-name').value.trim();
     if (!name) return;
+    const fields = {
+      name,
+      category: $('new-habit-cat').value,
+      emoji: state.pickedEmoji,
+      weeklyGoal: Number($('new-habit-goal').value),
+    };
+    const editing = state.editingId;
     try {
-      await addHabit({
-        name,
-        category: $('new-habit-cat').value,
-        emoji: state.pickedEmoji,
-        weeklyGoal: Number($('new-habit-goal').value),
-      });
+      if (editing) {
+        await updateHabit(editing, fields);
+      } else {
+        await addHabit(fields);
+      }
+      state.editingId = null;
       $('new-habit-name').value = '';
       closeModal('add-modal');
-      toast('✅ Habit add ho gaya');
+      toast(editing ? '✅ Habit update ho gaya' : '✅ Habit add ho gaya');
     } catch (err) {
-      toast(`Add fail: ${err.code || err.message}`);
+      toast(`${editing ? 'Update' : 'Add'} fail: ${err.code || err.message}`);
     }
   });
 
