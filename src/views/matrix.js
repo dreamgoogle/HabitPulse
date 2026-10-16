@@ -12,12 +12,12 @@ export function renderMatrixTab() {
 
   setHtml(
     'matrix-head-row',
-    '<th class="matrix-corner">Habit</th>' +
+    '<th class="matrix-habit-cell">Habit</th>' +
       week
         .map(
           (d) =>
             `<th class="${toDateKey(d) === todayKey ? 'is-today' : ''}">` +
-            `<div>${DAY_SHORT[d.getDay()]}</div><div class="matrix-date">${d.getDate()}</div></th>`
+            `<div>${DAY_SHORT[d.getDay()]}</div><div style="font-size:9px; opacity:0.75;">${d.getDate()}</div></th>`
         )
         .join('')
   );
@@ -41,7 +41,7 @@ export function renderMatrixTab() {
             const on = !!hab.history?.[key];
             const future = d > todayMidnight();
             return (
-              `<td><button class="matrix-cell${on ? ' on' : ''}${future ? ' future' : ''}" ` +
+              `<td><button class="matrix-toggle${on ? ' done' : ''}" ` +
               `data-action="toggle-habit" data-habit-id="${escapeHtml(hab.id)}" data-date="${key}" ` +
               `${future ? 'disabled' : ''} aria-label="${escapeHtml(hab.name)} ${key}">` +
               `${on ? '✓' : ''}</button></td>`

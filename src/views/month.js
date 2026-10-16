@@ -41,19 +41,18 @@ export function renderMonthTab() {
 
   // Monday-start grid
   const leadBlanks = (first.getDay() + 6) % 7;
-  let cells = '<div class="cal-cell blank"></div>'.repeat(leadBlanks);
+  let cells = '<div></div>'.repeat(leadBlanks);
 
   for (let day = 1; day <= last.getDate(); day++) {
     const d = new Date(base.getFullYear(), base.getMonth(), day);
     const key = toDateKey(d);
     const { pct } = dayCompletion(habits, key);
     const future = d > today;
-    const level = future ? -1 : pct === 0 ? 0 : pct < 34 ? 1 : pct < 67 ? 2 : pct < 100 ? 3 : 4;
+    const level = future ? 0 : habits.length && pct === 100 ? 4 : pct >= 70 ? 3 : pct >= 40 ? 2 : pct > 0 ? 1 : 0;
 
     cells +=
-      `<button class="cal-cell heat-${level}${key === state.selectedDate ? ' selected' : ''}` +
-      `${key === toDateKey(today) ? ' is-today' : ''}" ` +
-      `data-action="select-date" data-date="${key}">${day}</button>`;
+      `<button class="cal-cell${level ? ` lvl-${level}` : ''}${key === state.selectedDate ? ' selected' : ''}" ` +
+      `data-action="select-date" data-date="${key}"${future ? ' disabled' : ''}>${day}</button>`;
   }
   setHtml('month-cal-grid', cells);
 
@@ -67,7 +66,7 @@ function renderInspector(habits) {
 
   setText(
     'inspector-date-lbl',
-    new Date(key).toLocaleDateString('en-IN', {
+    new Date(`${key}T00:00:00`).toLocaleDateString('en-IN', {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
@@ -83,9 +82,10 @@ function renderInspector(habits) {
           .map((h) => {
             const on = !!h.history?.[key];
             return (
-              `<button class="chip${on ? ' on' : ''}" data-action="toggle-habit" ` +
+              `<button class="inspector-chip${on ? ' done' : ''}" data-action="toggle-habit" ` +
               `data-habit-id="${escapeHtml(h.id)}" data-date="${key}">` +
-              `<span>${on ? '✓' : '○'}</span><span>${escapeHtml(h.name)}</span></button>`
+              `<span>${escapeHtml(h.emoji || '')}</span><span>${escapeHtml(h.name)}</span>` +
+              `${on ? '<span>✓</span>' : ''}</button>`
             );
           })
           .join('')
@@ -105,12 +105,12 @@ function renderHabitBars(habits, elapsedDays) {
             const count = Object.keys(h.history || {}).filter((k) => k.startsWith(prefix)).length;
             const pct = elapsedDays ? Math.round((count / elapsedDays) * 100) : 0;
             return (
-              `<div class="hbar-row">` +
-              `<div class="hbar-top">` +
+              `<div class="progress-row">` +
+              `<div class="progress-top">` +
               `<span>${escapeHtml(h.emoji || '')} ${escapeHtml(h.name)} ` +
               `<span style="font-weight:500; color:var(--text-sub);">(${count}/${elapsedDays}d)</span></span>` +
-              `<span class="hbar-pct">${pct}%</span></div>` +
-              `<div class="hbar-track"><div class="hbar-fill" style="width:${pct}%"></div></div>` +
+              `<span style="color:var(--brand-light);">${pct}%</span></div>` +
+              `<div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>` +
               `</div>`
             );
           })

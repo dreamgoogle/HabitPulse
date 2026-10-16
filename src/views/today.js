@@ -34,21 +34,19 @@ export function renderHeader() {
     week
       .map((d) => {
         const key = toDateKey(d);
-        const { pct } = dayCompletion(habits, key);
-        const classes = [
-          'week-day',
-          key === state.selectedDate ? 'selected' : '',
-          key === todayKey ? 'is-today' : '',
-          pct === 100 ? 'complete' : '',
-        ]
+        const future = d > today;
+        const { done, total } = dayCompletion(habits, key);
+        const dotCls =
+          total > 0 && done === total ? ' done' : done > 0 ? ' partial' : '';
+        const cls = ['day-pill', key === state.selectedDate ? 'selected' : key === todayKey ? 'today' : '']
           .filter(Boolean)
           .join(' ');
 
         return (
-          `<button class="${classes}" data-action="select-date" data-date="${key}">` +
-          `<span class="wd-name">${DAY_SHORT[d.getDay()]}</span>` +
-          `<span class="wd-num">${d.getDate()}</span>` +
-          `<span class="wd-dot" style="opacity:${pct / 100}"></span>` +
+          `<button class="${cls}" data-action="select-date" data-date="${key}"${future ? ' disabled' : ''}>` +
+          `<span class="day-name">${DAY_SHORT[d.getDay()]}</span>` +
+          `<span class="day-num">${d.getDate()}</span>` +
+          `<span class="day-dot${dotCls}"></span>` +
           `</button>`
         );
       })
@@ -100,12 +98,14 @@ export function renderTodayTab() {
         const key = toDateKey(d);
         const c = dayCompletion(habits, key);
         const future = d > todayMidnight();
+        const height = future ? 8 : Math.max(c.pct, 10);
+        const fill = future || c.done === 0 ? ' empty' : c.pct === 100 ? ' perfect' : '';
         return (
-          `<div class="bar-col" data-action="select-date" data-date="${key}">` +
-          `<div class="bar-track"><div class="bar-fill${c.pct === 100 ? ' full' : ''}" ` +
-          `style="height:${future ? 0 : c.pct}%"></div></div>` +
-          `<span class="bar-lbl">${DAY_SHORT[d.getDay()]}</span>` +
-          `<span class="bar-val">${future ? '–' : c.done}</span>` +
+          `<div class="bar-col${key === state.selectedDate ? ' active' : ''}"` +
+          `${future ? '' : ` data-action="select-date" data-date="${key}"`}>` +
+          `<span class="bar-ratio">${future ? '-' : `${c.done}/${c.total}`}</span>` +
+          `<div class="bar-track"><div class="bar-fill${fill}" style="height:${height}%"></div></div>` +
+          `<span class="bar-day">${DAY_SHORT[d.getDay()].charAt(0)}</span>` +
           `</div>`
         );
       })
@@ -131,27 +131,31 @@ export function renderTodayTab() {
       .map((hab) => {
         const on = !!hab.history?.[sel];
         const streak = getActiveStreak(hab);
-        const weekDone = week.filter((d) => hab.history?.[toDateKey(d)]).length;
         const goal = hab.weeklyGoal || 7;
-        const goalPct = Math.min(100, Math.round((weekDone / goal) * 100));
+        const dots = week
+          .map((d) => `<span class="mini-dot${hab.history?.[toDateKey(d)] ? ' on' : ''}"></span>`)
+          .join('');
+        const weekDone = week.filter((d) => hab.history?.[toDateKey(d)]).length;
+        const id = escapeHtml(hab.id);
 
         return (
-          `<div class="habit-row${on ? ' done' : ''}">` +
-          `<button class="habit-check${on ? ' on' : ''}" data-action="toggle-habit" ` +
-          `data-habit-id="${escapeHtml(hab.id)}" aria-label="${escapeHtml(hab.name)} toggle">` +
-          `${on ? '✓' : ''}</button>` +
-          `<div class="habit-main">` +
-          `<div class="habit-name">${escapeHtml(hab.emoji || '')} ${escapeHtml(hab.name)}</div>` +
-          `<div class="habit-sub">` +
-          `<span class="habit-chip">${escapeHtml(hab.category || '')}</span>` +
-          `<span>🔥 ${streak}d</span>` +
-          `<span>${weekDone}/${goal} this week</span>` +
+          `<div class="habit-item${on ? ' completed' : ''}">` +
+          `<div class="habit-left" data-action="toggle-habit" data-habit-id="${id}">` +
+          `<div class="habit-icon">${escapeHtml(hab.emoji || '✅')}</div>` +
+          `<div class="habit-info">` +
+          `<div class="habit-name">${escapeHtml(hab.name)}</div>` +
+          `<div class="habit-meta">` +
+          `<span class="streak-tag">🔥 ${streak}d streak</span>` +
+          `<span>• ${weekDone}/${goal} wk</span>` +
+          `<span>• ${escapeHtml(hab.category || '')}</span>` +
           `</div>` +
-          `<div class="goal-track"><div class="goal-fill" style="width:${goalPct}%"></div></div>` +
-          `</div>` +
-          `<button class="habit-del" data-action="delete-habit" ` +
-          `data-habit-id="${escapeHtml(hab.id)}" aria-label="Delete">✕</button>` +
-          `</div>`
+          `<div class="mini-dots">${dots}</div>` +
+          `</div></div>` +
+          `<div class="habit-actions">` +
+          `<button class="del-btn" data-action="delete-habit" data-habit-id="${id}" title="Delete Habit">🗑️</button>` +
+          `<button class="check-btn${on ? ' done' : ''}" data-action="toggle-habit" ` +
+          `data-habit-id="${id}" aria-label="${escapeHtml(hab.name)} done">${on ? '✓' : ''}</button>` +
+          `</div></div>`
         );
       })
       .join('')
@@ -175,14 +179,16 @@ export function renderLeaderboard() {
     ranked.length
       ? ranked
           .map(
-            (item, i) =>
-              `<div class="habit-row">` +
-              `<span class="lb-rank">${i + 1}</span>` +
-              `<div class="habit-main">` +
-              `<div class="habit-name">${escapeHtml(item.emoji || '')} ${escapeHtml(item.name)}</div>` +
-              `<div class="habit-sub"><span>🔥 ${item.active}d active</span>` +
-              `<span>🏆 ${item.best}d best</span></div>` +
-              `</div></div>`
+            (item) =>
+              `<div class="habit-item">` +
+              `<div class="habit-left" style="cursor:default;">` +
+              `<div class="habit-icon">${escapeHtml(item.emoji || '✅')}</div>` +
+              `<div class="habit-info">` +
+              `<div class="habit-name">${escapeHtml(item.name)}</div>` +
+              `<div class="habit-meta">Best Streak: <b>${item.best} days</b></div>` +
+              `</div></div>` +
+              `<span class="badge-pill" style="background:rgba(245,158,11,0.16); color:var(--amber);">` +
+              `🔥 ${item.active}d active</span></div>`
           )
           .join('')
       : '<div class="card" style="text-align:center; color:var(--text-sub);">Abhi koi habit nahi.</div>'
