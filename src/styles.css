@@ -17,6 +17,15 @@
     --rose: #f43f5e;
     --sky: #0ea5e9;
     --purple: #a855f7;
+    /* Weekly chart — alag tokens taaki dono themes mein contrast alag se tune ho sake */
+    --bar-track: #0a101d;
+    --bar-track-border: rgba(148, 163, 184, 0.38);
+    --bar-empty: #64748b;
+    --bar-partial: linear-gradient(to top, #6366f1, #a5b4fc);
+    --bar-perfect: linear-gradient(to top, #10b981, #6ee7b7);
+    --bar-active-ring: #a5b4fc;
+    --bar-label-active: #c7d2fe;
+    --bar-label-active-bg: rgba(129, 140, 248, 0.28);
     --radius-xl: 22px;
     --radius-lg: 16px;
     --radius-md: 12px;
@@ -24,6 +33,14 @@
 }
 
 html.light {
+    --bar-track: #e2e8f0;
+    --bar-track-border: #94a3b8;
+    --bar-empty: #94a3b8;
+    --bar-partial: linear-gradient(to top, #4338ca, #6366f1);
+    --bar-perfect: linear-gradient(to top, #047857, #10b981);
+    --bar-active-ring: #4f46e5;
+    --bar-label-active: #3730a3;
+    --bar-label-active-bg: rgba(79, 70, 229, 0.16);
     --bg-body: #e2e8f0;
     --bg-shell: #ffffff;
     --bg-card: #f8fafc;
@@ -421,35 +438,40 @@ button:disabled {
 }
 
 .bar-col.active .bar-ratio {
-    color: var(--brand-light);
+    color: var(--bar-label-active);
 }
 
 .bar-track {
     width: 100%;
     max-width: 28px;
     height: 82px;
-    background-color: var(--bg-shell);
+    background-color: var(--bar-track);
     border-radius: 10px;
     padding: 2px;
     display: flex;
     align-items: flex-end;
     overflow: hidden;
-    border: 1px solid var(--border-color);
+    border: 1.5px solid var(--bar-track-border);
+}
+
+.bar-col.active .bar-track {
+    border-color: var(--bar-active-ring);
+    box-shadow: 0 0 0 2px var(--bar-label-active-bg);
 }
 
 .bar-fill {
     width: 100%;
     border-radius: 7px;
     transition: height 0.35s ease;
-    background: var(--brand);
+    background: var(--bar-partial);
 }
 
 .bar-fill.perfect {
-    background: linear-gradient(to top, var(--emerald), #34d399);
+    background: var(--bar-perfect);
 }
 
 .bar-fill.empty {
-    background: rgba(148, 163, 184, 0.25);
+    background: var(--bar-empty);
 }
 
 .bar-day {
@@ -462,8 +484,8 @@ button:disabled {
 }
 
 .bar-col.active .bar-day {
-    background-color: rgba(99, 102, 241, 0.2);
-    color: var(--brand-light);
+    background-color: var(--bar-label-active-bg);
+    color: var(--bar-label-active);
 }
 
 /* Category Filter Pills */
