@@ -183,10 +183,12 @@ exports.adminOverview = onCall(async (req) => {
     db.collection('users').where('createdAt', '>=', dayAgo).count().get(),
   ]);
 
+  // Pichhle 30 din, purane se naye. documentId() par DESC order ke liye alag index banana padta
+  // (pehli baar "query requires an index" error aata tha); ASC + range ko kisi index ki zaroorat nahi.
   const trendSnap = await db
     .collection('admin_stats')
-    .orderBy(FieldPath.documentId(), 'desc')
-    .limit(30)
+    .where(FieldPath.documentId(), '>=', dateKey(new Date(Date.now() - 29 * 864e5)))
+    .orderBy(FieldPath.documentId())
     .get();
 
   return {
@@ -196,7 +198,7 @@ exports.adminOverview = onCall(async (req) => {
       wau: wau.data().count,
       newToday: newToday.data().count,
     },
-    trend: trendSnap.docs.map((d) => d.data()).reverse(),
+    trend: trendSnap.docs.map((d) => d.data()),
   };
 });
 
