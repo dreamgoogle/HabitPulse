@@ -28,7 +28,9 @@ export function daysSinceLast(habit) {
     .sort()
     .pop();
   if (!last) return null;
-  return Math.round((todayMidnight() - new Date(`${last}T00:00:00`)) / 864e5);
+  // Aaj ka din abhi baaki hai, isliye sirf beete hue chhute din gino (last done aur aaj ke beech)
+  const diff = Math.round((todayMidnight() - new Date(`${last}T00:00:00`)) / 864e5);
+  return Math.max(0, diff - 1);
 }
 
 export function getBestStreak(habit) {
