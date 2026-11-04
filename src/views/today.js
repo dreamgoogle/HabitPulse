@@ -1,6 +1,7 @@
 /** Tab 1 — Today: hero ring, weekly bar chart, habit checklist. */
 import { escapeHtml, setText, setHtml, $ } from '../utils/dom.js';
 import { toDateKey, todayMidnight, DAY_SHORT } from '../utils/date.js';
+import { getSettings, gapLevel } from '../settings.js';
 import { getActiveStreak, getWeekDates, dayCompletion, rangeStats, daysSinceLast } from '../stats.js';
 import { state } from '../state.js';
 import { getHabits } from '../store.js';
@@ -134,16 +135,21 @@ export function renderTodayTab() {
         const goal = hab.weeklyGoal || 7;
         const weekDone = week.filter((d) => hab.history?.[toDateKey(d)]).length;
         const gap = daysSinceLast(hab);
+        const cfg = getSettings();
+        const level = gap !== null ? gapLevel(gap) : 'none';
+        const gapCls = level === 'danger' ? ' long' : level === 'warn' ? ' warn' : '';
         // Ek hi chip: streak chal rahi ho to 🔥, toot gayi ho to 💤 (kitne din se nahi ki), kabhi nahi ki to 🆕
-        const streakChip =
-          streak > 0
+        const streakChip = !cfg.showGapChip
+          ? ''
+          : streak > 0
             ? `<span class="streak-tag">🔥 ${streak}d</span>`
             : gap !== null
-              ? `<span class="streak-tag gap${gap >= 7 ? ' long' : ''}">💤 ${gap}d</span>`
+              ? `<span class="streak-tag gap${gapCls}">💤 ${gap}d</span>`
               : `<span class="streak-tag fresh">🆕 YTS</span>`;
-        // x/goal sirf tab jab goal 7 se kam ho — roz wali habit mein dots hi kaafi hain
         const goalChip = goal < 7 ? `<span>• ${weekDone}/${goal}</span>` : '';
-        const dots = week
+        const dots = !getSettings().showDots
+          ? ''
+          : week
           .map((d) => `<span class="mini-dot${hab.history?.[toDateKey(d)] ? ' on' : ''}"></span>`)
           .join('');
         const id = escapeHtml(hab.id);
@@ -157,9 +163,9 @@ export function renderTodayTab() {
           `<div class="habit-meta">` +
           `${streakChip}` +
           `${goalChip}` +
-          `<span>• ${escapeHtml(hab.category || '')}</span>` +
+          `${getSettings().showCategory ? `<span>• ${escapeHtml(hab.category || '')}</span>` : ''}` +
           `</div>` +
-          `<div class="mini-dots">${dots}</div>` +
+          (dots ? `<div class="mini-dots">${dots}</div>` : '') +
           `</div></div>` +
           `<div class="habit-actions">` +
           `<button class="del-btn" data-action="edit-habit" data-habit-id="${id}" title="Edit Habit">✏️</button>` +

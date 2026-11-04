@@ -39,6 +39,7 @@
                         </div>
                     </button>
                     <button class="icon-btn" data-action="open-add" title="New Habit">＋</button>
+                    <button class="icon-btn" data-action="open-settings" title="Settings" aria-label="Settings">⚙️</button>
                     <button class="icon-btn" id="theme-btn" data-action="toggle-theme" title="Switch Theme">☀️</button>
                 </div>
             </div>
@@ -323,6 +324,48 @@
                         <button id="habit-save-btn" type="submit" style="flex:2; padding:12px; border-radius:12px; background:var(--brand); color:#fff; font-weight:800; font-size:13px;">Save Habit</button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- ============ SETTINGS MODAL ============ -->
+        <div id="settings-modal" class="modal-backdrop hidden">
+            <div class="modal-sheet">
+                <div class="card-header">
+                    <div class="card-title">⚙️ Settings</div>
+                    <button data-action="close-settings" aria-label="Close" style="font-size:18px; color:var(--text-sub); padding:4px;">✕</button>
+                </div>
+                <div id="settings-form">
+                    <div class="settings-section">GAP WARNING (💤 kitne din se nahi ki)</div>
+                    <div class="settings-row">
+                        <label for="set-warn-days">Amber warning, itne din baad</label>
+                        <input id="set-warn-days" class="input-box" type="number" inputmode="numeric" min="1" max="43" step="1" data-setting="warnDays">
+                    </div>
+                    <div class="settings-row">
+                        <span>Amber ka rang</span>
+                        <div id="warn-swatches" class="swatch-row"></div>
+                    </div>
+                    <div class="settings-row">
+                        <label for="set-danger-days">Red warning, itne din baad</label>
+                        <input id="set-danger-days" class="input-box" type="number" inputmode="numeric" min="2" max="44" step="1" data-setting="dangerDays">
+                    </div>
+                    <div class="settings-row">
+                        <span>Red ka rang</span>
+                        <div id="danger-swatches" class="swatch-row"></div>
+                    </div>
+                    <div id="settings-preview" class="settings-preview"></div>
+                    <div class="settings-hint">Red din hamesha amber se bade hone chahiye. Rang dono themes (dark/light) mein apne aap sahi shade ban jate hain. Sirf pichhle 45 din ka data dekha jata hai, isliye 44 se zyada din nahi.</div>
+
+                    <div class="settings-section">HABIT ROW MEIN KYA DIKHAYEIN</div>
+                    <label class="settings-row"><span>💤 / 🔥 / 🆕 streak aur gap chip</span><input type="checkbox" data-setting="showGapChip"></label>
+                    <label class="settings-row"><span>Category (Mind, Health…)</span><input type="checkbox" data-setting="showCategory"></label>
+                    <label class="settings-row"><span>7 din ke dots</span><input type="checkbox" data-setting="showDots"></label>
+
+                    <div class="settings-hint">Ye settings sirf is device/browser par save hoti hain. Aapke habits ya history par inka koi asar nahi.</div>
+                    <div style="display:flex; gap:8px; margin-top:14px;">
+                        <button type="button" data-action="reset-settings" style="flex:1; padding:12px; border-radius:12px; background:var(--bg-card); font-weight:700; font-size:13px;">Reset to default</button>
+                        <button type="button" data-action="close-settings" style="flex:1; padding:12px; border-radius:12px; background:var(--brand); color:#fff; font-weight:800; font-size:13px;">Done</button>
+                    </div>
+                </div>
             </div>
         </div>
 

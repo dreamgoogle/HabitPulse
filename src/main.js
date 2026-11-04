@@ -20,6 +20,14 @@ import {
   migrateLegacyToCloud,
   isGuest,
 } from './store.js';
+import {
+  loadSettings,
+  getSettings,
+  updateSettings,
+  resetSettings,
+  WARN_COLORS,
+  DANGER_COLORS,
+} from './settings.js';
 import { state, EMOJIS } from './state.js';
 import { escapeHtml, setText, setHtml, show, hide, $, toast, delegate } from './utils/dom.js';
 import { toDateKey, todayMidnight } from './utils/date.js';
@@ -150,6 +158,46 @@ function renderEmojiPicker() {
 }
 
 /* ------------------------------------------------------------------ *
+ * Settings modal
+ * ------------------------------------------------------------------ */
+
+function renderSettingsModal() {
+  const cfg = getSettings();
+  $('set-warn-days').value = String(cfg.warnDays);
+  $('set-danger-days').value = String(cfg.dangerDays);
+
+  const swatches = (level, list, selected) =>
+    list
+      .map(
+        (c) =>
+          `<button type="button" class="swatch${c === selected ? ' selected' : ''}" ` +
+          `style="--swatch:var(--c-${c})" data-action="pick-color" data-level="${level}" ` +
+          `data-color="${c}" aria-label="${c}" title="${c}"></button>`
+      )
+      .join('');
+  setHtml('warn-swatches', swatches('warn', WARN_COLORS, cfg.warnColor));
+  setHtml('danger-swatches', swatches('danger', DANGER_COLORS, cfg.dangerColor));
+
+  document.querySelectorAll('#settings-form input[type="checkbox"]').forEach((cb) => {
+    cb.checked = !!cfg[cb.dataset.setting];
+  });
+
+  setHtml(
+    'settings-preview',
+    `<span class="streak-tag gap">💤 ${Math.max(1, cfg.warnDays - 1)}d</span>` +
+      `<span class="streak-tag gap warn">💤 ${cfg.warnDays}d</span>` +
+      `<span class="streak-tag gap long">💤 ${cfg.dangerDays}d</span>`
+  );
+}
+
+function applySettingChange(patch) {
+  const notes = updateSettings(patch);
+  if (notes.length) toast(notes[0]);
+  renderSettingsModal();
+  render();
+}
+
+/* ------------------------------------------------------------------ *
  * Theme
  * ------------------------------------------------------------------ */
 
@@ -238,6 +286,20 @@ function wireEvents() {
     'edit-habit': ({ habitId }) => openHabitModal(habitId),
     'close-add': () => closeModal('add-modal'),
 
+    'open-settings': () => {
+      renderSettingsModal();
+      openModal('settings-modal');
+    },
+    'close-settings': () => closeModal('settings-modal'),
+    'pick-color': ({ level, color }) =>
+      applySettingChange(level === 'warn' ? { warnColor: color } : { dangerColor: color }),
+    'reset-settings': () => {
+      resetSettings();
+      renderSettingsModal();
+      render();
+      toast('Settings default par wapas');
+    },
+
     'open-auth': () => openModal('auth-modal'),
     'close-auth': () => closeModal('auth-modal'),
 
@@ -308,6 +370,15 @@ function wireEvents() {
     }
   });
 
+  // Settings: number inputs blur/Enter par validate hote hain (typing ke beech nahi)
+  $('settings-form')?.addEventListener('change', (ev) => {
+    const el = ev.target;
+    const key = el?.dataset?.setting;
+    if (!key) return;
+    if (el.type === 'checkbox') applySettingChange({ [key]: el.checked });
+    else applySettingChange({ [key]: el.value });
+  });
+
   // Custom export range
   ['exp-start', 'exp-end'].forEach((id) => {
     $(id)?.addEventListener('change', () => {
@@ -342,6 +413,7 @@ async function boot() {
     applyTheme('dark');
   }
 
+  loadSettings();
   state.selectedDate = toDateKey(todayMidnight());
   wireEvents();
   renderEmojiPicker();

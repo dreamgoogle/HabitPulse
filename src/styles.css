@@ -26,7 +26,15 @@
     --bar-active-ring: #a5b4fc;
     --bar-label-active: #c7d2fe;
     --bar-label-active-bg: rgba(129, 140, 248, 0.28);
-    --gap-long: #fb7185;
+    /* Gap-chip rang presets (dark) */
+    --c-yellow: #facc15;
+    --c-amber: #fbbf24;
+    --c-orange: #fb923c;
+    --c-red: #f87171;
+    --c-rose: #fb7185;
+    --c-purple: #c084fc;
+    --gap-warn: var(--c-amber);
+    --gap-danger: var(--c-red);
     --radius-xl: 22px;
     --radius-lg: 16px;
     --radius-md: 12px;
@@ -34,7 +42,13 @@
 }
 
 html.light {
-    --gap-long: #be123c;
+    /* Gap-chip rang presets (light) — gehre shade, white par padhne layak */
+    --c-yellow: #a16207;
+    --c-amber: #b45309;
+    --c-orange: #c2410c;
+    --c-red: #b91c1c;
+    --c-rose: #be123c;
+    --c-purple: #7e22ce;
     --bar-track: #e2e8f0;
     --bar-track-border: #94a3b8;
     --bar-empty: #94a3b8;
@@ -615,8 +629,12 @@ button:disabled {
     color: var(--text-sub);
 }
 
+.streak-tag.gap.warn {
+    color: var(--gap-warn);
+}
+
 .streak-tag.gap.long {
-    color: var(--gap-long);
+    color: var(--gap-danger);
 }
 
 .streak-tag.fresh {
@@ -1508,4 +1526,93 @@ button:disabled {
     margin-bottom: 12px;
     font-size: 11px;
     color: var(--text-sub);
+}
+
+/* ---------- Settings modal ---------- */
+.settings-section {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: var(--text-sub);
+    margin: 14px 0 6px;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--bar-track-border);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.settings-row input[type='number'] {
+    width: 76px;
+    text-align: center;
+}
+
+.settings-hint {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-top: 6px;
+    line-height: 1.4;
+}
+
+.swatch-row {
+    display: flex;
+    gap: 8px;
+}
+
+.swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: var(--swatch);
+    cursor: pointer;
+}
+
+.swatch.selected {
+    border-color: var(--text-main, currentColor);
+    box-shadow: 0 0 0 2px var(--bg-card);
+}
+
+.settings-preview {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 10px 0 2px;
+    font-size: 12px;
+}
+
+/* Header mein 4 cheezein hain (account, +, ⚙️, theme) — chhoti screen par thoda compact */
+@media (max-width: 430px) {
+    .header-actions {
+        gap: 5px;
+        min-width: 0;
+    }
+
+    .header-actions .icon-btn {
+        width: 32px;
+        height: 32px;
+        flex: 0 0 auto;
+    }
+
+    .user-pill {
+        max-width: 118px;
+        min-width: 0;
+    }
+
+    .user-name-txt {
+        max-width: 66px;
+    }
+
+    .sync-status-txt {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 66px;
+    }
 }
