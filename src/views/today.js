@@ -1,7 +1,7 @@
 /** Tab 1 — Today: hero ring, weekly bar chart, habit checklist. */
 import { escapeHtml, setText, setHtml, $ } from '../utils/dom.js';
 import { toDateKey, todayMidnight, DAY_SHORT } from '../utils/date.js';
-import { getActiveStreak, getWeekDates, dayCompletion, rangeStats } from '../stats.js';
+import { getActiveStreak, getWeekDates, dayCompletion, rangeStats, daysSinceLast } from '../stats.js';
 import { state } from '../state.js';
 import { getHabits } from '../store.js';
 
@@ -132,10 +132,20 @@ export function renderTodayTab() {
         const on = !!hab.history?.[sel];
         const streak = getActiveStreak(hab);
         const goal = hab.weeklyGoal || 7;
+        const weekDone = week.filter((d) => hab.history?.[toDateKey(d)]).length;
+        const gap = daysSinceLast(hab);
+        // Ek hi chip: streak chal rahi ho to 🔥, toot gayi ho to 💤 (kitne din se nahi ki), kabhi nahi ki to 🆕
+        const streakChip =
+          streak > 0
+            ? `<span class="streak-tag">🔥 ${streak}d</span>`
+            : gap !== null
+              ? `<span class="streak-tag gap${gap >= 7 ? ' long' : ''}">💤 ${gap}d se nahi ki</span>`
+              : `<span class="streak-tag fresh">🆕 shuru nahi hua</span>`;
+        // x/goal sirf tab jab goal 7 se kam ho — roz wali habit mein dots hi kaafi hain
+        const goalChip = goal < 7 ? `<span>• ${weekDone}/${goal}</span>` : '';
         const dots = week
           .map((d) => `<span class="mini-dot${hab.history?.[toDateKey(d)] ? ' on' : ''}"></span>`)
           .join('');
-        const weekDone = week.filter((d) => hab.history?.[toDateKey(d)]).length;
         const id = escapeHtml(hab.id);
 
         return (
@@ -145,8 +155,8 @@ export function renderTodayTab() {
           `<div class="habit-info">` +
           `<div class="habit-name">${escapeHtml(hab.name)}</div>` +
           `<div class="habit-meta">` +
-          `<span class="streak-tag">🔥 ${streak}d</span>` +
-          `<span>• ${weekDone}/${goal} wk</span>` +
+          `${streakChip}` +
+          `${goalChip}` +
           `<span>• ${escapeHtml(hab.category || '')}</span>` +
           `</div>` +
           `<div class="mini-dots">${dots}</div>` +

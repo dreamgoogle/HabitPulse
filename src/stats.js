@@ -17,6 +17,20 @@ export function getActiveStreak(habit) {
   return streak;
 }
 
+/**
+ * Aakhri baar kab kiya tha — aaj se kitne din pehle. Kabhi nahi kiya (ya loaded window mein
+ * kuch nahi mila) to null. Aaj tick hua ho to 0. Sirf aaj tak ke din ginte hain.
+ */
+export function daysSinceLast(habit) {
+  const todayKey = toDateKey(todayMidnight());
+  const last = Object.keys(habit.history || {})
+    .filter((k) => habit.history[k] && k <= todayKey)
+    .sort()
+    .pop();
+  if (!last) return null;
+  return Math.round((todayMidnight() - new Date(`${last}T00:00:00`)) / 864e5);
+}
+
 export function getBestStreak(habit) {
   const keys = Object.keys(habit.history || {}).sort();
   if (!keys.length) return 0;
