@@ -139,7 +139,7 @@ export function renderTodayTab() {
           streak > 0
             ? `<span class="streak-tag">🔥 ${streak}d</span>`
             : gap !== null
-              ? `<span class="streak-tag gap${gap >= 7 ? ' long' : ''}">💤 ${gap}d se nahi ki</span>`
+              ? `<span class="streak-tag gap${gap >= 7 ? ' long' : ''}">💤 ${gap}d</span>`
               : `<span class="streak-tag fresh">🆕 shuru nahi hua</span>`;
         // x/goal sirf tab jab goal 7 se kam ho — roz wali habit mein dots hi kaafi hain
         const goalChip = goal < 7 ? `<span>• ${weekDone}/${goal}</span>` : '';
